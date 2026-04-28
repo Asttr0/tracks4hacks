@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react'
 import { Activity, Grid3x3, Shield, Globe2, Zap, ListFilter } from 'lucide-react'
 import { useUiStore, type ViewId } from '@/store/useUiStore'
 
-const ITEMS: { id: ViewId; label: string; icon: JSX.Element }[] = [
+const ITEMS: { id: ViewId; label: string; icon: ReactNode }[] = [
   { id: 'timeline', label: 'Timeline',   icon: <Activity className="w-4 h-4" /> },
   { id: 'mitre',    label: 'MITRE',      icon: <Grid3x3 className="w-4 h-4" /> },
   { id: 'coverage', label: 'Coverage',   icon: <Shield className="w-4 h-4" /> },

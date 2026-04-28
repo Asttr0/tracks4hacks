@@ -49,7 +49,9 @@ export function CorrelationTimeline() {
             <Tooltip
               contentStyle={{ background: '#0a0e1a', border: '1px solid #1f2937', fontSize: 12 }}
               labelFormatter={(v) => fmt(Number(v))}
-              formatter={(_v, _n, p) => [p.payload.label, p.payload.y === 1 ? 'Attack' : 'Alert']}
+              formatter={(_v: unknown, _n: unknown, p: { payload?: { label?: string; y?: number } }) =>
+                [p.payload?.label ?? '', p.payload?.y === 1 ? 'Attack' : 'Alert'] as [string, string]
+              }
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
 

@@ -1,5 +1,5 @@
 {
-  "name": "panopticon-ui",
+  "name": "tracks4hacks",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -26,6 +26,7 @@
     "@netlify/functions": "^2.8.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
+    "@types/node": "^25.6.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/react-simple-maps": "^3.0.6",
