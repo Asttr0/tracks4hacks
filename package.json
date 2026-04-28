@@ -1,0 +1,41 @@
+{
+  "name": "panopticon-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.0",
+    "date-fns": "^3.6.0",
+    "fuse.js": "^7.0.0",
+    "lucide-react": "^0.427.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-simple-maps": "^3.0.0",
+    "recharts": "^2.12.7",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.8.0",
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/react-simple-maps": "^3.0.6",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "jsdom": "^24.1.1",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.4.5",
+    "vite": "^6.0.0",
+    "vitest": "^2.0.5"
+  }
+}
