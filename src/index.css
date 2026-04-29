@@ -2,12 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root { height: 100%; }
-body { @apply bg-soc-bg text-soc-ink font-mono; font-family: ui-sans-serif, system-ui, sans-serif; }
 
-/* Print: hide chrome so only the incident report prints */
-@media print {
-  aside, header.h-12, .print\:hidden { display: none !important; }
-  body { background: white; color: #0f172a; }
-  main { overflow: visible !important; }
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
 }
