@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 // Styles cinématographiques sécurisés et optimisés
 const MasterpieceStyles = () => (
-  <style dangerouslySetInnerHTML={{__html: `
+  <style
+    dangerouslySetInnerHTML={{
+      __html: `
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
 
     /* === PHASE 1 : CRT TERMINAL RETRO (Le terminal rouge) === */
@@ -115,7 +117,9 @@ const MasterpieceStyles = () => (
       font-weight: 900;
       letter-spacing: 0.05em;
     }
-  `}} />
+  `,
+    }}
+  />
 );
 
 // Génération de spores flottantes sécurisée
@@ -128,14 +132,15 @@ const SporesOverlay = () => {
         const duration = Math.random() * 10 + 10;
         const delay = Math.random() * -20;
         return (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className="absolute bg-red-500 rounded-full blur-[1px] opacity-0 pointer-events-none"
             style={{
-              width: size + 'px', 
-              height: size + 'px',
-              left: left + '%',
-              animation: 'float-spores ' + duration + 's linear ' + delay + 's infinite'
+              width: size + "px",
+              height: size + "px",
+              left: left + "%",
+              animation:
+                "float-spores " + duration + "s linear " + delay + "s infinite",
             }}
           />
         );
@@ -146,47 +151,50 @@ const SporesOverlay = () => {
 
 export default function App() {
   // Phases: 'boot' (Terminal vert) -> 'tear' (TV s'éteint) -> 'void' -> 'stranger'
-  const [phase, setPhase] = useState('boot'); 
+  const [phase, setPhase] = useState("boot");
   const [terminalText, setTerminalText] = useState("");
-  const [bootLogs, setBootLogs] = useState([]);
+  const [bootLogs, setBootLogs] = useState<string[]>([]);
   const [showCursor, setShowCursor] = useState(true);
-  
+
   // Moteur de l'Intro (Terminal Vert)
   useEffect(() => {
-    if (phase !== 'boot') return;
-    
+    if (phase !== "boot") return;
+
     const cmd = "./Track4Hacks init";
     let i = 0;
-    
+
     // Étape 1 : Taper la commande
     const typeWriter = setInterval(() => {
       if (i < cmd.length) {
-        setTerminalText(prev => prev + cmd.charAt(i));
+        setTerminalText((prev) => prev + cmd.charAt(i));
         i++;
       } else {
         clearInterval(typeWriter);
-        
+
         // Étape 2 : Lancer le script simulé (affichage des logs)
         setTimeout(() => {
-          setBootLogs(prev => [...prev, "[+] Booting Purple Team Engine..."]);
+          setBootLogs((prev) => [...prev, "[+] Booting Purple Team Engine..."]);
         }, 500);
 
         setTimeout(() => {
-          setBootLogs(prev => [...prev, "[+] Connecting to SOC SIEM..."]);
+          setBootLogs((prev) => [...prev, "[+] Connecting to SOC SIEM..."]);
         }, 1200);
 
         setTimeout(() => {
-          setBootLogs(prev => [...prev, "[+] Syncing MITRE ATT&CK Matrix..."]);
+          setBootLogs((prev) => [
+            ...prev,
+            "[+] Syncing MITRE ATT&CK Matrix...",
+          ]);
         }, 1800);
 
         setTimeout(() => {
-          setBootLogs(prev => [...prev, "[+] Correlation Engine is ONLINE."]);
+          setBootLogs((prev) => [...prev, "[+] Correlation Engine is ONLINE."]);
           setShowCursor(false);
         }, 2400);
 
         // Étape 3 : Déclencher l'extinction de la TV
         setTimeout(() => {
-          setPhase('tear');
+          setPhase("tear");
         }, 3200);
       }
     }, 80); // Vitesse de frappe
@@ -196,11 +204,11 @@ export default function App() {
 
   // Gestionnaire des scènes cinématiques post-terminal
   useEffect(() => {
-    if (phase === 'tear') {
-      setTimeout(() => setPhase('void'), 600); // Wait for tv-turn-off animation
+    if (phase === "tear") {
+      setTimeout(() => setPhase("void"), 600); // Wait for tv-turn-off animation
     }
-    if (phase === 'void') {
-      setTimeout(() => setPhase('stranger'), 1500);
+    if (phase === "void") {
+      setTimeout(() => setPhase("stranger"), 1500);
     }
   }, [phase]);
 
@@ -210,46 +218,56 @@ export default function App() {
       <div className="crt-overlay"></div>
 
       {/* === ACTE 1 & 2 : RED TERMINAL & TV SHUTDOWN === */}
-      {(phase === 'boot' || phase === 'tear') && (
+      {(phase === "boot" || phase === "tear") && (
         <div className="absolute inset-0 bg-black flex items-center justify-center overflow-hidden z-50">
-          <div className={`w-full h-full crt-screen p-6 md:p-12 text-sm md:text-xl flex flex-col justify-start ${phase === 'tear' ? 'tv-turn-off' : ''}`}>
-            
+          <div
+            className={`w-full h-full crt-screen p-6 md:p-12 text-sm md:text-xl flex flex-col justify-start ${phase === "tear" ? "tv-turn-off" : ""}`}>
             <div className="whitespace-pre-wrap leading-relaxed">
               <span className="text-red-500 font-bold">Asttr0xSbijo@Kali</span>
               <span className="text-white"> : </span>
               <span className="text-red-400">~</span>
               <span className="text-white"># </span>
               {terminalText}
-              {showCursor && bootLogs.length === 0 && <span className="cursor-blink bg-red-600 text-red-600 inline-block w-[10px] h-[20px] align-middle ml-1">_</span>}
+              {showCursor && bootLogs.length === 0 && (
+                <span className="cursor-blink bg-red-600 text-red-600 inline-block w-[10px] h-[20px] align-middle ml-1">
+                  _
+                </span>
+              )}
             </div>
 
             {/* Affichage des logs qui s'enchaînent */}
             <div className="mt-2 flex flex-col gap-1">
               {bootLogs.map((log, index) => (
-                <div key={index} className="text-red-500">{log}</div>
+                <div key={index} className="text-red-500">
+                  {log}
+                </div>
               ))}
-              {showCursor && bootLogs.length > 0 && <span className="cursor-blink bg-red-600 text-red-600 inline-block w-[10px] h-[20px] align-middle mt-1">_</span>}
+              {showCursor && bootLogs.length > 0 && (
+                <span className="cursor-blink bg-red-600 text-red-600 inline-block w-[10px] h-[20px] align-middle mt-1">
+                  _
+                </span>
+              )}
             </div>
-
           </div>
         </div>
       )}
 
       {/* === ACTE 3 : STRANGER THINGS (Exactement la version demandée) === */}
-      {(phase === 'stranger' || phase === 'void') && (
+      {(phase === "stranger" || phase === "void") && (
         <>
-          {phase === 'stranger' && <SporesOverlay />}
-          
-          <div 
-            className={"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-red-900/20 blur-[100px] rounded-full pointer-events-none abyss-bg " + (phase === 'stranger' ? 'opacity-100' : 'opacity-0')}
-            style={{ transition: 'opacity 3s ease-in-out' }}
-          ></div>
+          {phase === "stranger" && <SporesOverlay />}
+
+          <div
+            className={
+              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-red-900/20 blur-[100px] rounded-full pointer-events-none abyss-bg " +
+              (phase === "stranger" ? "opacity-100" : "opacity-0")
+            }
+            style={{ transition: "opacity 3s ease-in-out" }}></div>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
             <div className="max-w-5xl w-full px-4 text-center relative flex flex-col items-center">
-              
               <div className="min-h-[180px] md:min-h-[240px] flex items-center justify-center w-full px-2">
-                {phase === 'stranger' && (
+                {phase === "stranger" && (
                   <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl text-red-600 font-cinematic animate-stranger uppercase select-none whitespace-nowrap">
                     Tracks<span className="text-white">4</span>Hacks
                   </h1>
@@ -257,34 +275,53 @@ export default function App() {
               </div>
 
               {/* Révélation du bouton avec styles en ligne pour sécuriser le délai */}
-              <div 
-                className={"mt-4 md:mt-8 ease-out " + (phase === 'stranger' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12')}
-                style={{ transition: 'all 3s ease-out', transitionDelay: phase === 'stranger' ? '2s' : '0s' }}
-              >
+              <div
+                className={
+                  "mt-4 md:mt-8 ease-out " +
+                  (phase === "stranger"
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-12")
+                }
+                style={{
+                  transition: "all 3s ease-out",
+                  transitionDelay: phase === "stranger" ? "2s" : "0s",
+                }}>
                 <p className="text-sm md:text-lg text-gray-400 font-light mb-8 max-w-2xl mx-auto leading-relaxed tracking-widest uppercase border-y border-red-900/30 py-4">
-                  Tracer chaque pas du hacker <br/>
-                  <span className="text-red-700 font-mono text-[10px] md:text-xs">Terminal Attaquant // Dashboard Défenseur</span>
+                  Tracer chaque pas du hacker <br />
+                  <span className="text-red-700 font-mono text-[10px] md:text-xs">
+                    Terminal Attaquant // Dashboard Défenseur
+                  </span>
                 </p>
 
                 <button className="btn-classified px-6 md:px-10 py-3 md:py-4 font-mono text-[10px] md:text-xs tracking-[0.3em] font-bold">
                   Initialiser Corrélation
                 </button>
               </div>
-
             </div>
           </div>
 
-          <div 
-            className={"absolute top-4 left-4 text-red-900/50 font-mono text-[9px] md:text-[10px] uppercase tracking-widest " + (phase === 'stranger' ? 'opacity-100' : 'opacity-0')}
-            style={{ transition: 'opacity 1s ease-in-out', transitionDelay: phase === 'stranger' ? '3s' : '0s' }}
-          >
+          <div
+            className={
+              "absolute top-4 left-4 text-red-900/50 font-mono text-[9px] md:text-[10px] uppercase tracking-widest " +
+              (phase === "stranger" ? "opacity-100" : "opacity-0")
+            }
+            style={{
+              transition: "opacity 1s ease-in-out",
+              transitionDelay: phase === "stranger" ? "3s" : "0s",
+            }}>
             SYS.OP. 74.241.250.61 // REC
           </div>
-          <div 
-            className={"absolute bottom-4 right-4 text-red-900/50 font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-right " + (phase === 'stranger' ? 'opacity-100' : 'opacity-0')}
-            style={{ transition: 'opacity 1s ease-in-out', transitionDelay: phase === 'stranger' ? '3s' : '0s' }}
-          >
-            AUTH: M.T. SLIMANI & ISMAIL<br/>
+          <div
+            className={
+              "absolute bottom-4 right-4 text-red-900/50 font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-right " +
+              (phase === "stranger" ? "opacity-100" : "opacity-0")
+            }
+            style={{
+              transition: "opacity 1s ease-in-out",
+              transitionDelay: phase === "stranger" ? "3s" : "0s",
+            }}>
+            AUTH: M.T. SLIMANI & ISMAIL
+            <br />
             ENSA BERRECHID
           </div>
         </>
