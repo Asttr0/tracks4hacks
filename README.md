@@ -27,6 +27,9 @@ Kali (local)  →  Azure VM (Wazuh + Suricata)  →  Wazuh REST API :55000
                                                      ↓ (JSON / SSE)
                                              React 19 dashboard (Netlify CDN)
 ```
+<img width="1610" height="937" alt="image" src="https://github.com/user-attachments/assets/8815e981-abe7-42fe-b850-16d04fa92900" />
+
+
 
 ## Quickstart
 
@@ -48,10 +51,9 @@ Toggle in the top bar. Uses `src/data/demo-alerts.ts` + `demo-attacks.ts` so you
 
 ## Team & Task Split
 
-| Owner | Responsibilities |
-|---|---|
-| **Taha (`@Asttr0`)** | Netlify Functions (BFF, SSE, attack replay) · GeoIP Map · Correlation Timeline view · MITRE Heatmap |
-| **Ismail** | React Layout (App shell, routing) · Sidebar / TopBar · Incident Report PDF · Command Palette (⌘K) · Coverage Scoreboard (analytics) |
+
+| **Taha (`@Asttr0`)** | Responsibilities : Netlify Functions (BFF, SSE, attack replay) · GeoIP Map · Correlation Timeline view · MITRE Heatmap |
+| **Ismail Garnaoui (`@sbijo`)** | Responsibilities : React Layout (App shell, routing) · Sidebar / TopBar · Incident Report PDF · Command Palette (⌘K) · Coverage Scoreboard (analytics) |
 
 ## Workflow
 
@@ -89,9 +91,3 @@ src/
 tests/               Vitest unit tests
 ```
 
-## Security notes
-
-- Never commit `.env`. Netlify env vars live only in the Netlify UI.
-- IP-allowlist port 55000 on the Azure NSG to Netlify's egress range (or tunnel via BFF only through port 443).
-- `/api/attack-replay` requires `x-replay-secret` header — don't share that secret.
-- Lock SSH (port 22) to Taha's + Ismail's IPs, install `fail2ban`.
