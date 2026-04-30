@@ -124,7 +124,9 @@ const MasterpieceStyles = () => (
 );
 
 // Génération de spores flottantes sécurisée
-const Spore = ({ spore }) => (
+type SporeData = { size: number; left: number; duration: number; delay: number };
+
+const Spore = ({ spore }: { spore: SporeData }) => (
   <div
     className="absolute bg-red-500 rounded-full blur-[1px] opacity-0 pointer-events-none"
     style={{
