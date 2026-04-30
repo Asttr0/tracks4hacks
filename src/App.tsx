@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { SmokeBackground } from "./components/common/SmokeBackground";
 
 // Styles cinématographiques sécurisés et optimisés
 const MasterpieceStyles = () => (
@@ -123,28 +124,35 @@ const MasterpieceStyles = () => (
 );
 
 // Génération de spores flottantes sécurisée
+const Spore = ({ spore }) => (
+  <div
+    className="absolute bg-red-500 rounded-full blur-[1px] opacity-0 pointer-events-none"
+    style={{
+      width: spore.size + "px",
+      height: spore.size + "px",
+      left: spore.left + "%",
+      animation: `float-spores ${spore.duration}s linear ${spore.delay}s infinite`,
+    }}
+  />
+);
+
 const SporesOverlay = () => {
+  const spores = useMemo(
+    () =>
+      Array.from({ length: 40 }).map(() => ({
+        size: Math.random() * 4 + 1,
+        left: Math.random() * 100,
+        duration: Math.random() * 10 + 10,
+        delay: Math.random() * -20,
+      })),
+    [],
+  );
+
   return (
     <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-      {Array.from({ length: 40 }).map((_, i) => {
-        const size = Math.random() * 4 + 1;
-        const left = Math.random() * 100;
-        const duration = Math.random() * 10 + 10;
-        const delay = Math.random() * -20;
-        return (
-          <div
-            key={i}
-            className="absolute bg-red-500 rounded-full blur-[1px] opacity-0 pointer-events-none"
-            style={{
-              width: size + "px",
-              height: size + "px",
-              left: left + "%",
-              animation:
-                "float-spores " + duration + "s linear " + delay + "s infinite",
-            }}
-          />
-        );
-      })}
+      {spores.map((spore, i) => (
+        <Spore key={i} spore={spore} />
+      ))}
     </div>
   );
 };
@@ -255,14 +263,14 @@ export default function App() {
       {/* === ACTE 3 : STRANGER THINGS (Exactement la version demandée) === */}
       {(phase === "stranger" || phase === "void") && (
         <>
+          {phase === "stranger" && (
+            <div
+              className="absolute inset-0 z-0 pointer-events-none opacity-100"
+              style={{ transition: "opacity 3s ease-in-out" }}>
+              <SmokeBackground smokeColor="#dc2626" />
+            </div>
+          )}
           {phase === "stranger" && <SporesOverlay />}
-
-          <div
-            className={
-              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vh] bg-red-900/20 blur-[100px] rounded-full pointer-events-none abyss-bg " +
-              (phase === "stranger" ? "opacity-100" : "opacity-0")
-            }
-            style={{ transition: "opacity 3s ease-in-out" }}></div>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
             <div className="max-w-5xl w-full px-4 text-center relative flex flex-col items-center">
