@@ -4,7 +4,7 @@
 
 React 19 + TypeScript 5.4 + Vite 6 dashboard that correlates Red Team attack campaigns (Kali) with Blue Team telemetry (Wazuh SIEM + Suricata IDS) on a Debian 12 VM hosted on Microsoft Azure.
 
-Built for the **ENSA Berrechid 2025-2026 *Technologies Web*** module (Pr. Ilhame Ait Lbachir) by **Mohamed Taha Slimani** (`@Asttr0`) & **Ismail Garnaoui (`@Sbijo`) **.
+Built for the **ENSA Berrechid 2025-2026 *Technologies Web*** module (Pr. Ilhame Ait Lbachir) by **Mohamed Taha Slimani** (`@Asttr0`) & **Ismail Garnaoui (`@Sbijo`)**.
 
 📖 Full architecture & glossary: [`TRACKS4HACKS_ARCHITECTURE_EN.md`](../TRACKS4HACKS_ARCHITECTURE_EN.md) · [FR](../TRACKS4HACKS_ARCHITECTURE_FR.md)
 
