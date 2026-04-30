@@ -170,7 +170,7 @@ export default function App() {
   useEffect(() => {
     if (phase !== "boot") return;
 
-    const cmd = "./Track4Hacks init";
+    const cmd = ".//Tracks4Hacks init";
     let i = 0;
 
     // Étape 1 : Taper la commande
@@ -234,7 +234,7 @@ export default function App() {
             className={`w-full h-full crt-screen p-6 md:p-12 text-sm md:text-xl flex flex-col justify-start ${phase === "tear" ? "tv-turn-off" : ""}`}>
             <div className="whitespace-pre-wrap leading-relaxed">
               <span className="text-red-500 font-bold">Asttr0xSbijo@Kali</span>
-              <span className="text-white"> : </span>
+              <span className="text-white">:</span>
               <span className="text-red-400">~</span>
               <span className="text-white"># </span>
               {terminalText}
