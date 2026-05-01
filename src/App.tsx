@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { SmokeBackground } from "./components/common/SmokeBackground";
+import { LeftNavbar } from "./components/layout/LeftNavbar";
 
 // Styles cinématographiques sécurisés et optimisés
 const MasterpieceStyles = () => (
@@ -262,6 +263,9 @@ export default function App() {
         </div>
       )}
 
+      {/* Navbar latérale gauche */}
+      {phase === "stranger" && <LeftNavbar theme="dark" />}
+
       {/* === ACTE 3 : STRANGER THINGS (Exactement la version demandée) === */}
       {(phase === "stranger" || phase === "void") && (
         <>
@@ -303,7 +307,9 @@ export default function App() {
                   </span>
                 </p>
 
-                <button className="btn-classified px-6 md:px-10 py-3 md:py-4 font-mono text-[10px] md:text-xs tracking-[0.3em] font-bold">
+                <button
+  
+                  className="btn-classified px-6 md:px-10 py-3 md:py-4 font-mono text-[10px] md:text-xs tracking-[0.3em] font-bold">
                   Initialiser Corrélation
                 </button>
               </div>
