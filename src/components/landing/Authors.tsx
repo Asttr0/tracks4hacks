@@ -42,7 +42,7 @@ export const Authors = () => (
             key={a.handle}
             variants={fadeUp}
             whileHover={{ y: -4 }}
-            className="group relative p-7 rounded-xl border border-slate-200 dark:border-white/8 bg-white dark:bg-gradient-to-b dark:from-white/[0.04] dark:to-transparent backdrop-blur-sm hover:border-red-500/40 transition-all duration-500"
+            className="group relative p-7 rounded-xl border border-slate-300/60 dark:border-white/[0.08] bg-slate-100/60 dark:bg-white/[0.03] backdrop-blur-sm hover:border-red-500/40 dark:hover:border-red-500/40 hover:bg-white dark:hover:bg-white/[0.05] transition-all duration-500"
           >
             <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             <div className="relative flex items-center gap-5">
@@ -58,7 +58,7 @@ export const Authors = () => (
                 <h3 className="font-cinematic text-slate-900 dark:text-white text-xl tracking-wide leading-tight">
                   {a.name}
                 </h3>
-                <p className="font-mono text-xs text-slate-500 dark:text-gray-400 mt-1.5">● {a.role}</p>
+                <p className="font-mono text-xs text-slate-600 dark:text-gray-400 mt-1.5">● {a.role}</p>
                 <a
                   href={a.github}
                   target="_blank"

@@ -12,6 +12,7 @@ type Layer = {
   icon: LucideIcon;
   accent: string;
   border: string;
+  glow: string;
 };
 
 const LAYERS: Layer[] = [
@@ -19,7 +20,7 @@ const LAYERS: Layer[] = [
     step: "01",
     title: "L'Attaque",
     subtitle: "Red Team — Kali Linux local",
-    desc: "Le poste Kali Linux local lance des outils offensifs contre la VM Azure.",
+    desc: "Le poste Kali Linux local lance des outils offensifs contre la VM Azure. Chaque action est journalisée avec son horodatage, l'outil utilisé, la cible et la technique MITRE correspondante.",
     details: [
       "nmap, hydra, metasploit, gobuster",
       "Chaque commande journalisée dans attack-log.json",
@@ -27,7 +28,8 @@ const LAYERS: Layer[] = [
     ],
     icon: Terminal,
     accent: "text-red-600 dark:text-red-400",
-    border: "border-red-500/40",
+    border: "border-red-500/30",
+    glow: "shadow-red-500/10",
   },
   {
     step: "02",
@@ -41,7 +43,8 @@ const LAYERS: Layer[] = [
     ],
     icon: Radar,
     accent: "text-blue-600 dark:text-blue-400",
-    border: "border-blue-500/40",
+    border: "border-blue-500/30",
+    glow: "shadow-blue-500/10",
   },
   {
     step: "03",
@@ -55,7 +58,8 @@ const LAYERS: Layer[] = [
     ],
     icon: Cloud,
     accent: "text-purple-600 dark:text-purple-400",
-    border: "border-purple-500/40",
+    border: "border-purple-500/30",
+    glow: "shadow-purple-500/10",
   },
   {
     step: "04",
@@ -69,7 +73,8 @@ const LAYERS: Layer[] = [
     ],
     icon: Monitor,
     accent: "text-cyan-600 dark:text-cyan-400",
-    border: "border-cyan-500/40",
+    border: "border-cyan-500/30",
+    glow: "shadow-cyan-500/10",
   },
 ];
 
@@ -98,15 +103,29 @@ export const Architecture = () => (
               <motion.div
                 variants={fadeUp}
                 whileHover={{ x: 6, transition: { duration: 0.2 } }}
-                className={`group relative p-6 md:p-8 rounded-xl border ${layer.border} bg-white dark:bg-gradient-to-r dark:from-white/[0.03] dark:to-transparent backdrop-blur-sm transition-all duration-500 hover:shadow-xl`}
+                className={`group relative p-6 md:p-8 rounded-xl border ${layer.border} bg-slate-100/60 dark:bg-white/[0.03] backdrop-blur-sm transition-all duration-500 hover:shadow-xl hover:${layer.glow} hover:bg-white dark:hover:bg-white/[0.05]`}
               >
+                {/* Glow corner accent */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-px opacity-60 rounded-t-xl"
+                  style={{
+                    background:
+                      i === 0
+                        ? "linear-gradient(90deg, #ef4444, transparent)"
+                        : i === 1
+                        ? "linear-gradient(90deg, #3b82f6, transparent)"
+                        : i === 2
+                        ? "linear-gradient(90deg, #a855f7, transparent)"
+                        : "linear-gradient(90deg, #06b6d4, transparent)",
+                  }}
+                />
                 <div className="flex flex-col md:flex-row md:items-start gap-6">
                   <div className="flex items-center gap-5 md:w-72 shrink-0">
-                    <div className="font-cinematic text-5xl text-slate-200 dark:text-white/10 group-hover:text-slate-300 dark:group-hover:text-white/20 transition-colors">
+                    <div className="font-cinematic text-5xl text-slate-300/80 dark:text-white/[0.06] group-hover:text-slate-400 dark:group-hover:text-white/[0.12] transition-colors">
                       {layer.step}
                     </div>
                     <div
-                      className={`w-14 h-14 rounded-xl border ${layer.border} bg-slate-50 dark:bg-black/40 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110`}
+                      className={`w-14 h-14 rounded-xl border ${layer.border} bg-white/80 dark:bg-black/30 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110`}
                     >
                       <Icon size={24} className={layer.accent} />
                     </div>
@@ -119,7 +138,7 @@ export const Architecture = () => (
                       </p>
                     </div>
                   </div>
-                  <div className="md:flex-1 md:border-l md:border-slate-200 dark:md:border-white/10 md:pl-8">
+                  <div className="md:flex-1 md:border-l md:border-slate-300/60 dark:md:border-white/[0.08] md:pl-8">
                     <p className="text-slate-700 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-4">
                       {layer.desc}
                     </p>
@@ -127,7 +146,7 @@ export const Architecture = () => (
                       {layer.details.map((d) => (
                         <li
                           key={d}
-                          className="flex items-start gap-2 text-xs font-mono text-slate-600 dark:text-gray-400"
+                          className="flex items-start gap-2 text-xs font-mono text-slate-600 dark:text-gray-500"
                         >
                           <span className={`${layer.accent} mt-0.5`}>›</span>
                           <span>{d}</span>
@@ -139,37 +158,12 @@ export const Architecture = () => (
               </motion.div>
               {!isLast && (
                 <motion.div variants={fadeUp} className="flex justify-center py-1" aria-hidden>
-                  <ArrowDown size={16} className="text-slate-300 dark:text-white/20" />
+                  <ArrowDown size={16} className="text-slate-400 dark:text-white/20" />
                 </motion.div>
               )}
             </div>
           );
         })}
-      </motion.div>
-
-      {/* ASCII flow diagram */}
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="show"
-        viewport={viewport}
-        className="mt-12 p-6 rounded-xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/30 backdrop-blur-sm overflow-x-auto"
-      >
-        <pre className="font-mono text-[11px] md:text-xs text-slate-700 dark:text-gray-400 leading-relaxed whitespace-pre">
-{`Kali Linux (Attaquant)
-       │ attaque
-       ▼
-VM Azure ── Suricata IDS ──► Wazuh Manager ──► API REST :55000
-                                                  │
-                                                  ▼
-                                      Netlify Functions (BFF)
-                                                  │
-                                                  ▼
-                                      Dashboard React (CDN)
-                                ┌─────────────────┼──────────────┐
-                            Timeline         Heatmap MITRE    GeoIP Map
-                            Red/Blue          (angles morts)  (carte IP)`}
-        </pre>
       </motion.div>
     </div>
   </section>

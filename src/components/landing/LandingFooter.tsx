@@ -13,7 +13,7 @@ export const LandingFooter = () => (
         <span className="font-cinematic text-red-500 text-base tracking-[0.3em] uppercase">
           Tracks<span className="text-slate-900 dark:text-white">4</span>Hacks
         </span>
-        <p className="font-mono text-xs text-slate-600 dark:text-gray-500 mt-3 leading-relaxed">
+        <p className="font-mono text-xs text-slate-600 dark:text-gray-300 mt-3 leading-relaxed">
           Tracer chaque pas du hacker — du terminal de l'attaquant au tableau de bord du défenseur.
         </p>
       </div>
@@ -29,7 +29,7 @@ export const LandingFooter = () => (
                 href={r.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 font-mono text-xs text-slate-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                className="inline-flex items-center gap-1.5 font-mono text-xs text-slate-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"
               >
                 {r.label}
                 <ExternalLink size={11} />
@@ -43,7 +43,7 @@ export const LandingFooter = () => (
         <p className="font-mono text-[10px] text-red-600 dark:text-red-400 tracking-[0.3em] uppercase mb-3">
           Crédits
         </p>
-        <p className="font-mono text-xs text-slate-600 dark:text-gray-500 leading-relaxed">
+        <p className="font-mono text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
           M.T. Slimani & I. Garnaoui
           <br />
           ENSA Berrechid 2025/2026
@@ -55,10 +55,10 @@ export const LandingFooter = () => (
 
     <div className="border-t border-slate-200 dark:border-white/5 py-4 px-6">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
-        <span className="font-mono text-[10px] text-slate-400 dark:text-gray-600 tracking-widest uppercase">
+        <span className="font-mono text-[10px] text-slate-400 dark:text-gray-400 tracking-widest uppercase">
           Educational / Non-Commercial
         </span>
-        <span className="font-mono text-[10px] text-slate-400 dark:text-gray-600">
+        <span className="font-mono text-[10px] text-slate-400 dark:text-gray-400">
           © 2026 Tracks4Hacks
         </span>
       </div>

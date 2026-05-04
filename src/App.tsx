@@ -10,6 +10,7 @@ import { About } from "./components/landing/About";
 import { SecurityTools } from "./components/landing/SecurityTools";
 import { TechStack } from "./components/landing/TechStack";
 import { Architecture } from "./components/landing/Architecture";
+import { ArchitectureDiagram } from "./components/landing/ArchitectureDiagram";
 import { Features } from "./components/landing/Features";
 import { SecurityPosture } from "./components/landing/SecurityPosture";
 import { Authors } from "./components/landing/Authors";
@@ -53,8 +54,8 @@ const MasterpieceStyles = () => (
 
     @keyframes float-spores {
       0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-      10%  { opacity: 0.8; }
-      90%  { opacity: 0.5; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.85; }
       100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
     }
 
@@ -89,6 +90,11 @@ const MasterpieceStyles = () => (
     }
     .animate-chevron { animation: chevron-bounce 2s ease-in-out infinite; }
 
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.55; transform: scale(0.85); }
+    }
+
     /* Scrollbar — dark mode */
     .dark ::-webkit-scrollbar { width: 8px; height: 8px; }
     .dark ::-webkit-scrollbar-track { background: #050507; }
@@ -118,39 +124,42 @@ type SporeData = { size: number; left: number; duration: number; delay: number }
 
 const Spore = ({ spore }: { spore: SporeData }) => (
   <div
-    className="absolute bg-red-500 rounded-full blur-[1px] opacity-0 pointer-events-none"
+    className="absolute bg-red-500 rounded-full opacity-0 pointer-events-none"
     style={{
       width: spore.size + "px",
       height: spore.size + "px",
       left: spore.left + "%",
+      boxShadow: `0 0 ${spore.size * 2}px rgba(239,68,68,0.9)`,
+      willChange: "transform, opacity",
       animation: `float-spores ${spore.duration}s linear ${spore.delay}s infinite`,
     }}
   />
 );
 
 const SporesOverlay = () => {
-  const { scrollY } = useScroll();
-  const opacity = useTransform(scrollY, [0, 400, 700], [1, 0.5, 0]);
-
   const spores = useMemo(
     () =>
-      Array.from({ length: 30 }).map(() => ({
-        size: Math.random() * 4 + 1,
+      Array.from({ length: 70 }).map(() => ({
+        size: Math.random() * 3.5 + 1.5,
         left: Math.random() * 100,
-        duration: Math.random() * 10 + 10,
-        delay: Math.random() * -20,
+        duration: Math.random() * 14 + 12,
+        delay: Math.random() * -30,
       })),
     [],
   );
   return (
-    <motion.div
-      style={{ opacity }}
+    <div
       className="fixed inset-0 z-10 overflow-hidden pointer-events-none"
+      style={{
+        opacity: 0.95,
+        transform: "translateZ(0)",
+        contain: "strict",
+      }}
     >
       {spores.map((spore, i) => (
         <Spore key={i} spore={spore} />
       ))}
-    </motion.div>
+    </div>
   );
 };
 
@@ -158,9 +167,17 @@ const SporesOverlay = () => {
 const FadingSmoke = () => {
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 400, 700], [1, 0.5, 0]);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    const unsub = scrollY.on("change", (v) => setPaused(v >= 700));
+    return () => unsub();
+  }, [scrollY]);
   return (
-    <motion.div style={{ opacity }} className="fixed inset-0 z-0 pointer-events-none">
-      <SmokeBackground smokeColor="#dc2626" />
+    <motion.div
+      style={{ opacity, willChange: "opacity", transform: "translateZ(0)" }}
+      className="fixed inset-0 z-0 pointer-events-none"
+    >
+      <SmokeBackground smokeColor="#dc2626" paused={paused} />
     </motion.div>
   );
 };
@@ -281,30 +298,6 @@ export default function App() {
             <ThemeToggle />
           </div>
 
-          {/* HUD corners */}
-          <div
-            className="fixed top-20 left-4 text-red-900/40 font-mono text-[9px] uppercase tracking-widest z-30 pointer-events-none hidden lg:block"
-            style={{
-              opacity: phase === "stranger" ? 1 : 0,
-              transition: "opacity 1s ease-in-out",
-              transitionDelay: phase === "stranger" ? "3s" : "0s",
-            }}
-          >
-            SYS.OP. 74.241.250.61 ● REC
-          </div>
-          <div
-            className="fixed bottom-4 right-4 text-red-900/40 font-mono text-[9px] uppercase tracking-widest text-right z-30 pointer-events-none hidden lg:block"
-            style={{
-              opacity: phase === "stranger" ? 1 : 0,
-              transition: "opacity 1s ease-in-out",
-              transitionDelay: phase === "stranger" ? "3s" : "0s",
-            }}
-          >
-            AUTH: M.T. SLIMANI & ISMAIL
-            <br />
-            ENSA BERRECHID
-          </div>
-
           <main className="relative z-20">
             {/* === HERO === */}
             <section className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden">
@@ -354,63 +347,41 @@ export default function App() {
                     />
                   </div>
 
-                  <p className="mt-5 font-cinematic italic text-base md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto tracking-wide">
-                    L'attaque rencontre la défense.{" "}
-                    <span
-                      className="not-italic font-bold bg-clip-text text-transparent"
-                      style={{
-                        backgroundImage:
-                          "linear-gradient(90deg,#ef4444,#f87171,#ef4444)",
-                      }}
-                    >
-                      En direct.
-                    </span>
+                  <p className="mt-5 text-base md:text-lg text-gray-300 leading-relaxed max-w-xl mx-auto">
+                    Tracer chaque pas — du shell de l'attaquant à l'alerte du
+                    défenseur, sur un seul tableau de bord.
                   </p>
 
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: phase === "stranger" ? 1 : 0, y: 0 }}
                     transition={{ duration: 1, delay: 3.6 }}
-                    className="mt-5 flex items-center justify-center gap-3 max-w-2xl mx-auto"
+                    className="mt-8 inline-flex items-stretch divide-x divide-white/10 rounded-md border border-white/10 bg-black/40 backdrop-blur-sm overflow-hidden font-mono text-[10px] tracking-[0.28em] uppercase"
                   >
-                    <span
-                      className="font-mono text-[9px] tracking-[0.4em] uppercase px-2 py-1 rounded border border-red-500/40 text-red-400/90"
-                      style={{ background: "rgba(239,68,68,0.05)" }}
-                    >
-                      v1.0
-                    </span>
-                    <p className="font-mono text-[11px] md:text-xs leading-relaxed tracking-wide text-gray-400">
-                      <span className="text-red-400/60">{">"}</span>{" "}
-                      Révèle ce que votre SOC{" "}
+                    {[
+                      { label: "Wazuh SIEM",    state: "Online",  color: "#22c55e" },
+                      { label: "Suricata IDS",  state: "Active",  color: "#22c55e" },
+                      { label: "ATT&CK v14",    state: "14 / 14", color: "#22c55e" },
+                      { label: "Stream",        state: "Live",    color: "#ef4444" },
+                    ].map(({ label, state, color }) => (
                       <span
-                        className="font-semibold"
-                        style={{
-                          color: "#86efac",
-                          textShadow: "0 0 8px rgba(134,239,172,0.4)",
-                        }}
+                        key={label}
+                        className="flex items-center gap-2.5 px-4 py-2.5"
                       >
-                        voit
+                        <span
+                          className="block w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{
+                            background: color,
+                            boxShadow: `0 0 8px ${color}, 0 0 2px ${color}`,
+                            animation: "pulse-dot 1.8s ease-in-out infinite",
+                          }}
+                        />
+                        <span className="text-gray-400">{label}</span>
+                        <span className="text-white/85" style={{ color }}>
+                          {state}
+                        </span>
                       </span>
-                      {" — "}
-                      <span className="text-gray-500">et surtout</span>
-                      {", "}
-                      <span
-                        className="font-semibold italic"
-                        style={{
-                          color: "#fca5a5",
-                          textShadow: "0 0 10px rgba(239,68,68,0.5)",
-                        }}
-                      >
-                        ce qu'il rate
-                      </span>
-                      <motion.span
-                        animate={{ opacity: [0, 1, 0] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                        className="text-red-400 ml-0.5"
-                      >
-                        _
-                      </motion.span>
-                    </p>
+                    ))}
                   </motion.div>
                 </motion.div>
               </div>
@@ -429,6 +400,7 @@ export default function App() {
             <SecurityTools />
             <TechStack />
             <Architecture />
+            <ArchitectureDiagram />
             <Features />
             <SecurityPosture />
             <Authors />
