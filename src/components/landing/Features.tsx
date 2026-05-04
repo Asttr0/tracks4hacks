@@ -103,11 +103,11 @@ export const Features = () => (
               key={feature.num}
               variants={fadeUp}
               whileHover={{ y: -6, transition: { duration: 0.25 } }}
-              className="group relative p-7 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-gradient-to-b dark:from-white/[0.03] dark:to-transparent backdrop-blur-sm hover:border-red-500/50 dark:hover:border-red-500/40 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-500 overflow-hidden"
+              className="group relative p-7 rounded-xl border border-slate-300/60 dark:border-white/[0.07] bg-slate-100/60 dark:bg-white/[0.03] backdrop-blur-sm hover:border-red-500/40 dark:hover:border-red-500/40 hover:bg-white dark:hover:bg-white/[0.05] hover:shadow-xl hover:shadow-red-500/10 transition-all duration-500 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-red-500/[0.04] dark:from-red-500/[0.06] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-              <span className="absolute top-4 right-5 font-cinematic text-5xl text-slate-100 dark:text-white/[0.04] group-hover:text-red-500/15 dark:group-hover:text-red-500/10 transition-colors duration-500">
+              <span className="absolute top-4 right-5 font-cinematic text-5xl text-slate-300/70 dark:text-white/[0.04] group-hover:text-red-500/15 dark:group-hover:text-red-500/10 transition-colors duration-500">
                 {feature.num}
               </span>
 
@@ -121,7 +121,7 @@ export const Features = () => (
                 <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-5">
                   {feature.desc}
                 </p>
-                <span className="font-mono text-[10px] text-red-600 dark:text-red-400/70 tracking-[0.25em] uppercase border-t border-slate-200 dark:border-white/5 pt-3 block">
+                <span className="font-mono text-[10px] text-red-600 dark:text-red-400/70 tracking-[0.25em] uppercase border-t border-slate-300/60 dark:border-white/5 pt-3 block">
                   {feature.tag}
                 </span>
               </div>
@@ -145,7 +145,7 @@ export const Features = () => (
               key={b.title}
               variants={fadeUp}
               whileHover={{ scale: 1.01 }}
-              className="flex items-start gap-4 p-5 rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] hover:border-red-500/30 transition-all"
+              className="flex items-start gap-4 p-5 rounded-lg border border-slate-300/60 dark:border-white/[0.06] bg-slate-100/60 dark:bg-white/[0.02] hover:border-red-500/30 dark:hover:border-red-500/30 hover:bg-white dark:hover:bg-white/[0.04] transition-all"
             >
               <div className="w-10 h-10 rounded-lg bg-red-500/10 dark:bg-red-600/10 border border-red-500/20 dark:border-red-600/30 flex items-center justify-center shrink-0">
                 <Icon size={18} className="text-red-600 dark:text-red-400" />

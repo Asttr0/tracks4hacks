@@ -140,13 +140,17 @@ const hexToRgb = (hex: string): [number, number, number] | null => {
 
 interface SmokeBackgroundProps {
   smokeColor?: string;
+  paused?: boolean;
 }
 
 export const SmokeBackground: React.FC<SmokeBackgroundProps> = ({
-  smokeColor = "#808080"
+  smokeColor = "#808080",
+  paused = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -158,15 +162,20 @@ export const SmokeBackground: React.FC<SmokeBackgroundProps> = ({
     handleResize();
     window.addEventListener('resize', handleResize);
 
+    let pageVisible = !document.hidden;
+    const onVis = () => { pageVisible = !document.hidden; };
+    document.addEventListener('visibilitychange', onVis);
+
     let animationFrameId: number;
     const loop = (now: number) => {
-      renderer.render(now);
+      if (!pausedRef.current && pageVisible) renderer.render(now);
       animationFrameId = requestAnimationFrame(loop);
     };
     loop(0);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', onVis);
       cancelAnimationFrame(animationFrameId);
       renderer.reset();
     };

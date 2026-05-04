@@ -45,7 +45,7 @@ export const CTASection = ({ onLaunch }: CTASectionProps) => (
           <motion.a
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
-            href="https://github.com/ismailgr10/Tracks4Hacks"
+            href="https://github.com/Asttr0/tracks4hacks"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 px-8 py-4 rounded-lg border border-slate-300 dark:border-white/15 bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.06] hover:border-slate-400 dark:hover:border-white/30 text-slate-900 dark:text-white font-mono text-sm uppercase tracking-[0.25em] transition-all"
