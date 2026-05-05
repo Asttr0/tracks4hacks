@@ -1,10 +1,35 @@
 import { useEffect } from "react";
 import { useStreamStore } from "../store/streamStore";
 import { sampleAlerts } from "../data/sampleAlerts";
+import type { Alert, Severity } from "../types/Alert";
 
 const isDemo = () =>
   typeof window !== "undefined" &&
   new URLSearchParams(window.location.search).get("demo") === "1";
+
+function levelToSeverity(level: number): Severity {
+  if (level >= 15) return "critical";
+  if (level >= 12) return "high";
+  if (level >= 8) return "medium";
+  if (level >= 4) return "low";
+  return "info";
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeAlert(raw: any): Alert {
+  return {
+    id: raw._id ?? raw.id ?? `${Date.now()}-${Math.random()}`,
+    ts: raw.timestamp ?? new Date().toISOString(),
+    source: "wazuh",
+    severity: levelToSeverity(raw.rule?.level ?? 0),
+    ruleId: String(raw.rule?.id ?? ""),
+    ruleDesc: raw.rule?.description ?? raw.rule?.firedtimes ?? "",
+    agent: raw.agent ? { id: raw.agent.id, name: raw.agent.name } : undefined,
+    srcIp: raw.data?.srcip ?? raw.data?.src_ip,
+    dstIp: raw.data?.dstip ?? raw.data?.dst_ip,
+    techniqueIds: raw.rule?.mitre?.id ?? [],
+  };
+}
 
 export const useStream = () => {
   const status = useStreamStore((s) => s.status);
@@ -24,9 +49,12 @@ export const useStream = () => {
       es = new EventSource("/api/stream");
       es.onopen = () => setStatus("open");
       es.onerror = () => setStatus("error");
-      es.addEventListener("alert", (ev) => {
+      es.addEventListener("alerts", (ev) => {
         try {
-          pushAlert(JSON.parse((ev as MessageEvent).data));
+          const items = JSON.parse((ev as MessageEvent).data);
+          (Array.isArray(items) ? items : [items])
+            .map(normalizeAlert)
+            .forEach(pushAlert);
         } catch {
           /* ignore malformed */
         }
