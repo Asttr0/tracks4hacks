@@ -51,3 +51,4 @@ attack-log.json
 *.pcap
 *.pem
 *.key
+deno.lock
