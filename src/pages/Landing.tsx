@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { SmokeBackground } from "../components/common/SmokeBackground";
-import { LeftNavbar } from "../components/layout/LeftNavbar";
 import { ThemeToggle } from "../components/landing/ThemeToggle";
-import { useTheme } from "../contexts/ThemeContext";
 import { AnimatedBackground } from "../components/landing/AnimatedBackground";
 import { About } from "../components/landing/About";
 import { SecurityTools } from "../components/landing/SecurityTools";
@@ -191,7 +189,6 @@ export default function Landing() {
   const [bootLogs, setBootLogs] = useState<string[]>([]);
   const [showCursor, setShowCursor] = useState(true);
   const heroContentRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
 
   // Hero parallax on scroll
   useEffect(() => {
@@ -295,7 +292,6 @@ export default function Landing() {
           <FadingSmoke />
           {phase === "stranger" && <SporesOverlay />}
 
-          <LeftNavbar theme={theme} />
           <div className="fixed top-4 right-4 z-[60]">
             <ThemeToggle />
           </div>

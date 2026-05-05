@@ -7,9 +7,11 @@ import {
   Play,
   ShieldAlert,
   Gauge,
+  ChevronRight,
+  ChevronLeft,
   type LucideIcon,
 } from "lucide-react";
-import { clsx } from "../../lib/clsx";
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface NavItem {
   to: string;
@@ -18,7 +20,7 @@ interface NavItem {
   end?: boolean;
 }
 
-const items: NavItem[] = [
+const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Vue d'ensemble", icon: LayoutDashboard, end: true },
   { to: "/dashboard/map", label: "GeoIP Map", icon: Globe2 },
   { to: "/dashboard/timeline", label: "Timeline", icon: GitMerge },
@@ -28,54 +30,160 @@ const items: NavItem[] = [
   { to: "/dashboard/coverage", label: "Coverage", icon: Gauge },
 ];
 
+export const RAIL_WIDTH = 64;
+export const DRAWER_WIDTH = 280;
+
 interface SidebarProps {
-  collapsed: boolean;
+  open: boolean;
+  onToggle: () => void;
 }
 
-export const Sidebar = ({ collapsed }: SidebarProps) => (
-  <aside
-    className={clsx(
-      "sticky top-14 hidden h-[calc(100vh-3.5rem)] flex-col border-r border-slate-200 bg-white/80 backdrop-blur-sm transition-[width] duration-200 dark:border-white/5 dark:bg-soc-panel/60 md:flex",
-      collapsed ? "w-16" : "w-60",
-    )}
-  >
-    <nav className="flex-1 space-y-1 px-2 py-4">
-      {items.map(({ to, label, icon: Icon, end }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          className={({ isActive }) =>
-            clsx(
-              "group relative flex items-center gap-3 rounded-md px-3 py-2 font-mono text-[11px] tracking-[0.2em] uppercase transition-colors",
-              isActive
-                ? "bg-red-500/10 text-red-600 dark:text-red-300"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white",
-            )
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <span
-                className={clsx(
-                  "absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-red-500 transition-opacity",
-                  isActive ? "opacity-100" : "opacity-0",
-                )}
-              />
-              <Icon size={16} className="shrink-0" />
-              {!collapsed && <span className="truncate">{label}</span>}
-            </>
-          )}
-        </NavLink>
-      ))}
-    </nav>
+export const Sidebar = ({ open, onToggle }: SidebarProps) => {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
-    {!collapsed && (
-      <div className="border-t border-slate-200 px-4 py-4 dark:border-white/5">
-        <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-slate-400 dark:text-gray-500">
-          Tracks<span className="text-red-500">4</span>Hacks · v0.1
-        </p>
+  const palette = isLight
+    ? {
+        drawerBg: "bg-coffee-bean-50",
+        drawerBorder: "border-terracotta-clay-700/40",
+        drawerText: "text-coffee-bean-900",
+        headerBorder: "border-terracotta-clay-700/30",
+        kicker: "text-terracotta-clay-700/80",
+        titleColor: "#633638",
+        titleAccent: "text-coffee-bean-900",
+        titleShadow: "0 0 14px rgba(166,89,93,0.45)",
+        itemText: "text-coffee-bean-800/85",
+        itemActive: "text-coffee-bean-900 bg-terracotta-clay-200/45",
+        itemHover: "hover:text-coffee-bean-900 hover:bg-terracotta-clay-200/45",
+        accentBar: "bg-terracotta-clay-600",
+        accentBarShadow: "0 0 10px rgba(133,71,74,0.85)",
+        sweep:
+          "bg-gradient-to-r from-transparent via-terracotta-clay-300/40 to-transparent",
+        footerBorder: "border-terracotta-clay-700/30",
+        footerText: "text-terracotta-clay-700/70",
+        toggleBg: "bg-coffee-bean-50",
+        toggleBorder: "border-terracotta-clay-700/40",
+        toggleText: "text-coffee-bean-900",
+      }
+    : {
+        drawerBg: "bg-pitch-black-950",
+        drawerBorder: "border-night-bordeaux-800/50",
+        drawerText: "text-coffee-bean-100",
+        headerBorder: "border-night-bordeaux-800/50",
+        kicker: "text-night-bordeaux-500/80",
+        titleColor: "#c43b3b",
+        titleAccent: "text-coffee-bean-50",
+        titleShadow: "0 0 14px rgba(196,59,59,0.55)",
+        itemText: "text-coffee-bean-200/75",
+        itemActive: "text-coffee-bean-50 bg-night-bordeaux-900/45",
+        itemHover: "hover:text-coffee-bean-50 hover:bg-night-bordeaux-900/45",
+        accentBar: "bg-night-bordeaux-500",
+        accentBarShadow: "0 0 10px rgba(196,59,59,0.9)",
+        sweep:
+          "bg-gradient-to-r from-transparent via-night-bordeaux-700/25 to-transparent",
+        footerBorder: "border-night-bordeaux-800/50",
+        footerText: "text-night-bordeaux-700/80",
+        toggleBg: "bg-pitch-black-950",
+        toggleBorder: "border-night-bordeaux-800/60",
+        toggleText: "text-coffee-bean-100",
+      };
+
+  return (
+    <aside
+      style={{ width: open ? DRAWER_WIDTH : RAIL_WIDTH }}
+      className={`fixed top-0 left-0 h-full z-50
+        backdrop-blur-xl border-r overflow-visible
+        transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+        ${palette.drawerBg} ${palette.drawerBorder} ${palette.drawerText}`}
+    >
+      {/* Toggle chevron sur le bord droit */}
+      <button
+        onClick={onToggle}
+        aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+        className={`absolute top-20 -right-3 z-10 w-6 h-6 rounded-full
+          flex items-center justify-center border
+          transition-all duration-300
+          ${palette.toggleBg} ${palette.toggleBorder} ${palette.toggleText}
+          hover:scale-110`}
+      >
+        {open ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+      </button>
+
+      {/* Header */}
+      <div
+        className={`px-4 pt-8 pb-6 border-b ${palette.headerBorder}
+          flex items-center ${open ? "justify-start" : "justify-center"}`}
+      >
+        {open ? (
+          <h2
+            className="font-cinematic text-2xl uppercase tracking-wider whitespace-nowrap text-red-600 select-none"
+            style={{ textShadow: "0 0 14px rgba(220,38,38,0.45)" }}
+          >
+            Tracks
+            <span className="text-slate-900 dark:text-white">4</span>
+            Hacks
+          </h2>
+        ) : (
+          <span
+            className="font-cinematic text-2xl uppercase tracking-wider text-red-600 select-none"
+            style={{ textShadow: "0 0 14px rgba(220,38,38,0.45)" }}
+          >
+            T<span className="text-slate-900 dark:text-white">4</span>H
+          </span>
+        )}
       </div>
-    )}
-  </aside>
-);
+
+      {/* Items */}
+      <nav className="px-2 py-4 flex flex-col gap-1 overflow-y-auto overflow-x-hidden h-[calc(100%-180px)]">
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              title={!open ? item.label : undefined}
+              className={({ isActive }) =>
+                `group relative flex items-center gap-4 rounded-lg
+                  font-mono text-xs uppercase tracking-[0.2em] overflow-hidden
+                  transition-all duration-300
+                  ${open ? "px-4 py-3" : "px-0 py-3 justify-center"}
+                  ${isActive ? palette.itemActive : `${palette.itemText} ${palette.itemHover}`}`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-[2px] rounded-full
+                      transition-all duration-300 ${palette.accentBar}
+                      ${isActive ? "h-2/3" : "h-0 group-hover:h-2/3"}`}
+                    style={{ boxShadow: palette.accentBarShadow }}
+                  />
+                  <span
+                    className={`absolute inset-0 -translate-x-full group-hover:translate-x-full
+                      transition-transform duration-700 ease-out pointer-events-none
+                      ${palette.sweep}`}
+                  />
+                  <Icon size={18} strokeWidth={1.5} className="shrink-0" />
+                  {open && <span className="relative whitespace-nowrap">{item.label}</span>}
+                </>
+              )}
+            </NavLink>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      {open && (
+        <div
+          className={`absolute bottom-0 left-0 right-0 px-6 py-4 border-t font-mono text-[9px] uppercase tracking-widest
+            ${palette.footerBorder} ${palette.footerText}`}
+        >
+          AUTH: M.T. SLIMANI & ISMAIL
+          <br />
+          ENSA BERRECHID
+        </div>
+      )}
+    </aside>
+  );
+};
