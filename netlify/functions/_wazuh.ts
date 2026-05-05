@@ -6,6 +6,10 @@ const WAZUH_USER = process.env.WAZUH_USER ?? ''
 const WAZUH_PASS = process.env.WAZUH_PASS ?? ''
 const INSECURE = process.env.WAZUH_INSECURE === '1'
 
+// Allow self-signed certs in lab — Node built-in fetch uses undici which
+// respects this env var. Only active when WAZUH_INSECURE=1.
+if (INSECURE) process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 let cachedToken: { value: string; expiresAt: number } | null = null
 const TOKEN_TTL_MS = 14 * 60 * 1000
 
@@ -21,8 +25,6 @@ export async function getWazuhToken(): Promise<string> {
   const res = await fetch(`${WAZUH_URL}/security/user/authenticate?raw=true`, {
     method: 'POST',
     headers: { Authorization: `Basic ${basic}` },
-    // @ts-ignore Node fetch: bypass self-signed cert in lab
-    ...(INSECURE ? { dispatcher: undefined } : {})
   })
   if (!res.ok) throw new Error(`Wazuh auth failed: ${res.status}`)
   const token = (await res.text()).trim()
@@ -34,7 +36,7 @@ export async function wazuhFetch(path: string, init: RequestInit = {}): Promise<
   const token = await getWazuhToken()
   return fetch(`${WAZUH_URL}${path}`, {
     ...init,
-    headers: { ...(init.headers ?? {}), Authorization: `Bearer ${token}` }
+    headers: { ...(init.headers ?? {}), Authorization: `Bearer ${token}` },
   })
 }
 
