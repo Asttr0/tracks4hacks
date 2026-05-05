@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useStreamStore } from "../store/streamStore";
 import { sampleAlerts } from "../data/sampleAlerts";
 import type { Alert, Severity } from "../types/Alert";
+import type { GeoEvent } from "../types/GeoEvent";
 
 const isDemo = () =>
   typeof window !== "undefined" &&
@@ -31,10 +32,58 @@ function normalizeAlert(raw: any): Alert {
   };
 }
 
+// Module-level cache so IPs already resolved don't trigger a second BFF call
+const resolvedIps = new Set<string>();
+
+async function resolveGeoIps(
+  alerts: Alert[],
+  pushGeoEvent: (g: GeoEvent) => void
+) {
+  const ips = [
+    ...new Set(
+      alerts.map((a) => a.srcIp).filter((ip): ip is string => Boolean(ip))
+    ),
+  ].filter((ip) => !resolvedIps.has(ip));
+
+  if (!ips.length) return;
+  ips.forEach((ip) => resolvedIps.add(ip));
+
+  try {
+    const res = await fetch(`/api/geoip?ips=${ips.join(",")}`);
+    if (!res.ok) {
+      ips.forEach((ip) => resolvedIps.delete(ip));
+      return;
+    }
+    const geos = (await res.json()) as Array<{
+      ip: string;
+      lat: number;
+      lon: number;
+      country: string;
+      city: string;
+    }>;
+    geos.forEach((geo) => {
+      const alert = alerts.find((a) => a.srcIp === geo.ip);
+      pushGeoEvent({
+        id: `${geo.ip}-${Date.now()}-${Math.random()}`,
+        ts: alert?.ts ?? new Date().toISOString(),
+        ip: geo.ip,
+        lat: geo.lat,
+        lon: geo.lon,
+        country: geo.country,
+        city: geo.city,
+        severity: alert?.severity ?? "info",
+      });
+    });
+  } catch {
+    ips.forEach((ip) => resolvedIps.delete(ip));
+  }
+}
+
 export const useStream = () => {
   const status = useStreamStore((s) => s.status);
   const setStatus = useStreamStore((s) => s.setStatus);
   const pushAlert = useStreamStore((s) => s.pushAlert);
+  const pushGeoEvent = useStreamStore((s) => s.pushGeoEvent);
 
   useEffect(() => {
     if (isDemo()) {
@@ -52,9 +101,11 @@ export const useStream = () => {
       es.addEventListener("alerts", (ev) => {
         try {
           const items = JSON.parse((ev as MessageEvent).data);
-          (Array.isArray(items) ? items : [items])
-            .map(normalizeAlert)
-            .forEach(pushAlert);
+          const normalized = (Array.isArray(items) ? items : [items]).map(
+            normalizeAlert
+          );
+          normalized.forEach(pushAlert);
+          resolveGeoIps(normalized, pushGeoEvent);
         } catch {
           /* ignore malformed */
         }
@@ -66,7 +117,7 @@ export const useStream = () => {
       es?.close();
       setStatus("closed");
     };
-  }, [pushAlert, setStatus]);
+  }, [pushAlert, pushGeoEvent, setStatus]);
 
   return { status };
 };
