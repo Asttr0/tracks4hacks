@@ -61,8 +61,8 @@ interface ArcDatum {
   target: [number, number];
   color: RGB;
   ip: string;
-  city: string;
-  country: string;
+  city?: string;
+  country?: string;
   severity: Severity;
   ts: string;
 }
