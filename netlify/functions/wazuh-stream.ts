@@ -7,6 +7,9 @@ const INDEXER_PROXY_TOKEN = process.env.INDEXER_PROXY_TOKEN ?? ''
 
 if (process.env.WAZUH_INSECURE === '1') process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
+const TICK_MS = 5000
+const LIFETIME_MS = 55_000
+
 async function fetchAlertsSince(since: string): Promise<unknown[]> {
   const query = {
     size: 50,
@@ -27,36 +30,46 @@ async function fetchAlertsSince(since: string): Promise<unknown[]> {
   return body.hits?.hits?.map((h) => h._source) ?? []
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
 export default async (_req: Request, _ctx: Context) => {
   const encoder = new TextEncoder()
-  let lastTs = new Date(Date.now() - 60_000).toISOString()
+  let lastTs = new Date(Date.now() - 30 * 24 * 60 * 60_000).toISOString()
 
   const stream = new ReadableStream({
     async start(controller) {
-      const tick = async () => {
-        try {
-          const items = await fetchAlertsSince(lastTs)
-          if (items.length) {
-            const last = items[items.length - 1] as Record<string, unknown>
-            if (last?.timestamp) lastTs = last.timestamp as string
-            controller.enqueue(
-              encoder.encode(`event: alerts\ndata: ${JSON.stringify(items)}\n\n`)
-            )
-          } else {
-            controller.enqueue(encoder.encode(`: keepalive\n\n`))
-          }
-        } catch (e) {
-          controller.enqueue(
-            encoder.encode(
-              `event: error\ndata: ${JSON.stringify({ error: (e as Error).message })}\n\n`
-            )
-          )
-        }
-      }
+      // Flush an immediate comment so the browser fires onopen right away.
+      controller.enqueue(encoder.encode(`: ready\n\n`))
 
-      const iv = setInterval(tick, 5000)
-      tick()
-      setTimeout(() => { clearInterval(iv); controller.close() }, 55_000)
+      const startedAt = Date.now()
+      let closed = false
+
+      try {
+        while (!closed && Date.now() - startedAt < LIFETIME_MS) {
+          try {
+            const items = await fetchAlertsSince(lastTs)
+            if (items.length) {
+              const last = items[items.length - 1] as Record<string, unknown>
+              if (last?.timestamp) lastTs = last.timestamp as string
+              controller.enqueue(
+                encoder.encode(`event: alerts\ndata: ${JSON.stringify(items)}\n\n`)
+              )
+            } else {
+              controller.enqueue(encoder.encode(`: keepalive\n\n`))
+            }
+          } catch (e) {
+            controller.enqueue(
+              encoder.encode(
+                `event: error\ndata: ${JSON.stringify({ error: (e as Error).message })}\n\n`
+              )
+            )
+          }
+          await sleep(TICK_MS)
+        }
+      } finally {
+        closed = true
+        try { controller.close() } catch { /* already closed */ }
+      }
     },
   })
 
@@ -65,6 +78,7 @@ export default async (_req: Request, _ctx: Context) => {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     },
   })
 }
