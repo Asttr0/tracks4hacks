@@ -1,12 +1,9 @@
 import { useEffect } from "react";
 import { useStreamStore } from "../store/streamStore";
+import { useUiStore } from "../store/useUiStore";
 import { sampleAlerts } from "../data/sampleAlerts";
 import type { Alert, Severity } from "../types/Alert";
 import type { GeoEvent } from "../types/GeoEvent";
-
-const isDemo = () =>
-  typeof window !== "undefined" &&
-  new URLSearchParams(window.location.search).get("demo") === "1";
 
 function levelToSeverity(level: number): Severity {
   if (level >= 15) return "critical";
@@ -32,7 +29,8 @@ function normalizeAlert(raw: any): Alert {
   };
 }
 
-// Module-level cache so IPs already resolved don't trigger a second BFF call
+// Module-level cache so IPs already resolved don't trigger a second BFF call.
+// Cleared on demo/live toggle so the map redraws from scratch.
 const resolvedIps = new Set<string>();
 
 async function resolveGeoIps(
@@ -84,11 +82,18 @@ export const useStream = () => {
   const setStatus = useStreamStore((s) => s.setStatus);
   const pushAlert = useStreamStore((s) => s.pushAlert);
   const pushGeoEvent = useStreamStore((s) => s.pushGeoEvent);
+  const clear = useStreamStore((s) => s.clear);
+  const demoMode = useUiStore((s) => s.demoMode);
 
   useEffect(() => {
-    if (isDemo()) {
+    // Reset accumulated state so a mode switch redraws from scratch.
+    clear();
+    resolvedIps.clear();
+
+    if (demoMode) {
       setStatus("open");
       sampleAlerts.forEach(pushAlert);
+      resolveGeoIps(sampleAlerts, pushGeoEvent);
       return;
     }
 
@@ -117,7 +122,7 @@ export const useStream = () => {
       es?.close();
       setStatus("closed");
     };
-  }, [pushAlert, pushGeoEvent, setStatus]);
+  }, [demoMode, clear, pushAlert, pushGeoEvent, setStatus]);
 
   return { status };
 };

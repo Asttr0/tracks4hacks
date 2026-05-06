@@ -20,7 +20,7 @@ type UiState = {
 }
 
 export const useUiStore = create<UiState>((set) => ({
-  demoMode: true,
+  demoMode: false,
   toggleDemo: () => set((s) => ({ demoMode: !s.demoMode })),
   activeView: 'timeline',
   setView: (v) => set({ activeView: v }),
