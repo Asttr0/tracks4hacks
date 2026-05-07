@@ -166,6 +166,10 @@ const SpeedometerGauge = ({ value }: { value: number }) => {
       <circle cx={cx} cy={cy} r={2.2} fill={hubDot} />
       <text x={cx} y={cy + 30} textAnchor="middle" fill={valueFill}
         fontSize={21} fontFamily="JetBrains Mono" fontWeight="bold">{value} %</text>
+      <text x={cx} y={cy + 46} textAnchor="middle" fill={dark ? "rgba(255,255,255,0.35)" : "rgba(30,41,59,0.45)"}
+        fontSize={8} fontFamily="JetBrains Mono" letterSpacing="0.12em">TAUX DE DÉTECTION</text>
+      <text x={cx} y={cy + 58} textAnchor="middle" fill={dark ? "rgba(255,255,255,0.22)" : "rgba(30,41,59,0.3)"}
+        fontSize={7} fontFamily="JetBrains Mono" letterSpacing="0.08em">attaques détectées / total</text>
     </svg>
   );
 };
@@ -561,6 +565,10 @@ export default function Coverage() {
               </div>
             </div>
             <div className="flex-1"><SpeedometerGauge value={kpi.coverage} /></div>
+            <div className="text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500 dark:text-coffee-bean-200/50">Taux de détection</p>
+              <p className="mt-0.5 font-mono text-[9px] text-slate-400 dark:text-coffee-bean-200/35">{kpi.detectedAttacks} attaques détectées sur {kpi.totalAttacks}</p>
+            </div>
             <div className="flex justify-center gap-6 font-mono text-[9px] uppercase tracking-wider text-slate-400 dark:text-coffee-bean-200/35">
               <span>{kpi.detectedAttacks} détectées</span>
               <span className="text-slate-300 dark:text-night-bordeaux-500/60">·</span>
