@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Globe2,
@@ -12,6 +13,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+
+const EASE_SOFT = [0.32, 0.72, 0, 1] as const;
 
 interface NavItem {
   to: string;
@@ -89,48 +92,67 @@ export const Sidebar = ({ open, onToggle }: SidebarProps) => {
       };
 
   return (
-    <aside
-      style={{ width: open ? DRAWER_WIDTH : RAIL_WIDTH }}
+    <motion.aside
+      initial={false}
+      animate={{ width: open ? DRAWER_WIDTH : RAIL_WIDTH }}
+      transition={{ duration: 0.42, ease: EASE_SOFT }}
       className={`fixed top-0 left-0 h-full z-50
         backdrop-blur-xl border-r overflow-visible
-        transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
         ${palette.drawerBg} ${palette.drawerBorder} ${palette.drawerText}`}
     >
-      {/* Toggle chevron sur le bord droit */}
+      {/* Toggle chevron */}
       <button
         onClick={onToggle}
         aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
         className={`absolute top-20 -right-3 z-10 w-6 h-6 rounded-full
           flex items-center justify-center border
-          transition-all duration-300
+          transition-transform duration-300
           ${palette.toggleBg} ${palette.toggleBorder} ${palette.toggleText}
           hover:scale-110`}
+        style={{ transitionTimingFunction: "cubic-bezier(0.22,0.61,0.36,1)" }}
       >
-        {open ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        <motion.span
+          animate={{ rotate: open ? 0 : 180 }}
+          transition={{ duration: 0.42, ease: EASE_SOFT }}
+          className="inline-flex"
+        >
+          <ChevronLeft size={14} />
+        </motion.span>
       </button>
 
-      {/* Header */}
+      {/* Header brand — crossfade between full and abbreviated */}
       <div
         className={`px-4 pt-8 pb-6 border-b ${palette.headerBorder}
-          flex items-center ${open ? "justify-start" : "justify-center"}`}
+          relative flex items-center h-[88px]
+          ${open ? "justify-start" : "justify-center"}`}
       >
-        {open ? (
-          <h2
-            className="font-cinematic text-2xl uppercase tracking-wider whitespace-nowrap text-red-600 select-none"
-            style={{ textShadow: "0 0 14px rgba(220,38,38,0.45)" }}
-          >
-            Tracks
-            <span className="text-slate-900 dark:text-white">4</span>
-            Hacks
-          </h2>
-        ) : (
-          <span
-            className="font-cinematic text-2xl uppercase tracking-wider text-red-600 select-none"
-            style={{ textShadow: "0 0 14px rgba(220,38,38,0.45)" }}
-          >
-            T<span className="text-slate-900 dark:text-white">4</span>H
-          </span>
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {open ? (
+            <motion.h2
+              key="brand-full"
+              initial={{ opacity: 0, x: -6, filter: "blur(4px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, x: -4, filter: "blur(2px)" }}
+              transition={{ duration: 0.34, ease: EASE_SOFT }}
+              className="font-cinematic text-[26px] tracking-[0.04em] whitespace-nowrap text-red-600 select-none"
+              style={{ textShadow: "0 0 14px rgba(220,38,38,0.45)" }}
+            >
+              Tracks<span className="text-slate-900 dark:text-white">4</span>Hacks
+            </motion.h2>
+          ) : (
+            <motion.span
+              key="brand-short"
+              initial={{ opacity: 0, scale: 0.85, filter: "blur(4px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.9, filter: "blur(2px)" }}
+              transition={{ duration: 0.34, ease: EASE_SOFT }}
+              className="font-cinematic text-[26px] tracking-[0.04em] text-red-600 select-none"
+              style={{ textShadow: "0 0 14px rgba(220,38,38,0.45)" }}
+            >
+              T<span className="text-slate-900 dark:text-white">4</span>H
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Items */}
@@ -173,17 +195,24 @@ export const Sidebar = ({ open, onToggle }: SidebarProps) => {
         })}
       </nav>
 
-      {/* Footer */}
-      {open && (
-        <div
-          className={`absolute bottom-0 left-0 right-0 px-6 py-4 border-t font-mono text-[9px] uppercase tracking-widest
-            ${palette.footerBorder} ${palette.footerText}`}
-        >
-          AUTH: M.T. SLIMANI & ISMAIL
-          <br />
-          ENSA BERRECHID
-        </div>
-      )}
-    </aside>
+      {/* Footer — fade with brand */}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="footer"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.28, ease: EASE_SOFT }}
+            className={`absolute bottom-0 left-0 right-0 px-6 py-4 border-t font-mono text-[9px] uppercase tracking-widest
+              ${palette.footerBorder} ${palette.footerText}`}
+          >
+            AUTH: M.T. SLIMANI &amp; ISMAIL
+            <br />
+            ENSA BERRECHID
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.aside>
   );
 };
