@@ -28,8 +28,10 @@ export default function AppShell() {
     >
       <Sidebar open={open} onToggle={() => setOpen((v) => !v)} />
       <div
-        style={{ marginLeft: offset }}
-        className="transition-[margin] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        style={{
+          marginLeft: offset,
+          transition: "margin 420ms cubic-bezier(0.32,0.72,0,1)",
+        }}
       >
         <TopBar onOpenPalette={() => setPaletteOpen(true)} />
         <main className="min-w-0">

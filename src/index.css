@@ -1,14 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700&display=swap');
+/*
+ * Type stack
+ *   Cinzel         — brand / display titles (Tracks4Hacks, page headers)
+ *   Manrope        — body / labels (replaces Inter for less-generic feel)
+ *   JetBrains Mono — telemetry / numerics / IPs / code
+ */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* unified easing tokens */
+  --ease-soft:  cubic-bezier(0.32, 0.72, 0, 1);   /* layout / sidebar (slow tail) */
+  --ease-quick: cubic-bezier(0.22, 0.61, 0.36, 1); /* hover / micro-ix */
+  --ease-snap:  cubic-bezier(0.16, 1, 0.3, 1);    /* enter pop */
+}
+
 body {
   margin: 0;
   padding: 0;
   background-color: #000;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .font-cinematic {
@@ -19,5 +35,31 @@ body {
 
 .font-mono,
 [class*="font-mono"] {
-  font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace !important;
+  font-feature-settings: 'zero', 'ss02';
+}
+
+/* neon-edge — tight subtle breath used by KPI / panel cards */
+@keyframes neon-edge-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.85; }
+}
+@keyframes neon-edge-glow {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+.neon-edge-line {
+  animation: neon-edge-pulse 3.2s ease-in-out infinite;
+}
+.neon-edge-glow {
+  animation: neon-edge-glow 3.2s ease-in-out infinite;
+}
+
+/* respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
