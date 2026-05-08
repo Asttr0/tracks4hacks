@@ -9,14 +9,12 @@ if (process.env.WAZUH_INSECURE === '1') process.env.NODE_TLS_REJECT_UNAUTHORIZED
 
 const TICK_MS = 5000
 const LIFETIME_MS = 55_000
+const RECENT_WINDOW_MS = 60 * 60 * 1000 // last hour
+const RECENT_LIMIT = 200
 
-async function fetchAlertsSince(since: string): Promise<unknown[]> {
-  const query = {
-    size: 50,
-    sort: [{ timestamp: { order: 'asc' } }],
-    query: { range: { timestamp: { gt: since } } },
-    _source: ['timestamp', 'rule', 'agent', 'data', 'location', 'full_log'],
-  }
+const SOURCE_FIELDS = ['timestamp', 'rule', 'agent', 'data', 'location', 'full_log']
+
+async function indexerSearch(query: unknown): Promise<unknown[]> {
   const res = await fetch(`${INDEXER_URL}/wazuh-alerts-*/_search`, {
     method: 'POST',
     headers: {
@@ -30,24 +28,47 @@ async function fetchAlertsSince(since: string): Promise<unknown[]> {
   return body.hits?.hits?.map((h) => h._source) ?? []
 }
 
+/** First tick: most recent N alerts (desc) → re-emitted in chronological order. */
+async function fetchRecent(): Promise<unknown[]> {
+  const items = await indexerSearch({
+    size: RECENT_LIMIT,
+    sort: [{ timestamp: { order: 'desc' } }],
+    query: { range: { timestamp: { gte: new Date(Date.now() - RECENT_WINDOW_MS).toISOString() } } },
+    _source: SOURCE_FIELDS,
+  })
+  return items.reverse()
+}
+
+/** Tail: alerts strictly after `since`, ascending. */
+async function fetchAlertsSince(since: string): Promise<unknown[]> {
+  return indexerSearch({
+    size: 50,
+    sort: [{ timestamp: { order: 'asc' } }],
+    query: { range: { timestamp: { gt: since } } },
+    _source: SOURCE_FIELDS,
+  })
+}
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 export default async (_req: Request, _ctx: Context) => {
   const encoder = new TextEncoder()
-  let lastTs = new Date(Date.now() - 30 * 24 * 60 * 60_000).toISOString()
+  let lastTs = new Date(Date.now() - RECENT_WINDOW_MS).toISOString()
 
   const stream = new ReadableStream({
     async start(controller) {
-      // Flush an immediate comment so the browser fires onopen right away.
       controller.enqueue(encoder.encode(`: ready\n\n`))
 
       const startedAt = Date.now()
       let closed = false
+      let primed = false
 
       try {
         while (!closed && Date.now() - startedAt < LIFETIME_MS) {
           try {
-            const items = await fetchAlertsSince(lastTs)
+            // First tick: prime with the most recent alerts so the UI fills instantly.
+            const items = primed ? await fetchAlertsSince(lastTs) : await fetchRecent()
+            primed = true
             if (items.length) {
               const last = items[items.length - 1] as Record<string, unknown>
               if (last?.timestamp) lastTs = last.timestamp as string
