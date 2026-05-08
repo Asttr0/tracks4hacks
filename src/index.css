@@ -39,6 +39,23 @@ body {
   font-feature-settings: 'zero', 'ss02';
 }
 
+/* neon-edge — tight subtle breath used by KPI / panel cards */
+@keyframes neon-edge-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.85; }
+}
+@keyframes neon-edge-glow {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+.neon-edge-line {
+  animation: neon-edge-pulse 3.2s ease-in-out infinite;
+}
+.neon-edge-glow {
+  animation: neon-edge-glow 3.2s ease-in-out infinite;
+}
+
 /* respect reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

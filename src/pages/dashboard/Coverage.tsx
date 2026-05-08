@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart, Bar, Cell,
@@ -91,6 +91,76 @@ const DEMO_MTTD_BARS = DEMO_DETECTED.map((d) => ({ id: d.id.replace("ATK-", ""),
 
 // ─── Speedometer Gauge ─────────────────────────────────────────────────────────
 
+/**
+ * Needle rotated around (cx, cy) via the SVG-native `transform="rotate(a cx cy)"`
+ * attribute. Smoothing handled by a hand-rolled RAF spring → no framer-motion
+ * indirection, no transform-origin / transform-box ambiguity. The needle base
+ * is mathematically locked to (cx, cy).
+ */
+const Needle = ({ cx, cy, length, targetRot }: {
+  cx: number; cy: number; length: number; targetRot: number;
+}) => {
+  const groupRef = useRef<SVGGElement | null>(null);
+  const rotRef = useRef<number>(-90);
+  const velRef = useRef<number>(0);
+  const targetRef = useRef<number>(targetRot);
+
+  // Spring tuning
+  const STIFFNESS = 0.10;   // pull toward target per frame (≈ 10% of remaining error)
+  const DAMPING = 0.78;     // velocity retention per frame (lower = stiffer settle)
+
+  useEffect(() => {
+    targetRef.current = targetRot;
+
+    let raf = 0;
+    const tick = () => {
+      const cur = rotRef.current;
+      const target = targetRef.current;
+      const force = (target - cur) * STIFFNESS;
+      velRef.current = velRef.current * DAMPING + force;
+      let next = cur + velRef.current;
+
+      // settle when very close
+      if (Math.abs(target - next) < 0.05 && Math.abs(velRef.current) < 0.05) {
+        next = target;
+        velRef.current = 0;
+      }
+
+      rotRef.current = next;
+      const g = groupRef.current;
+      if (g) g.setAttribute("transform", `rotate(${next.toFixed(3)} ${cx} ${cy})`);
+
+      if (next !== target) raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [targetRot, cx, cy]);
+
+  return (
+    <g ref={groupRef} transform={`rotate(${rotRef.current} ${cx} ${cy})`}>
+      <path
+        d={`M ${cx - 4} ${cy + 1} L ${cx} ${cy - length + 1} L ${cx + 4} ${cy + 1} Z`}
+        fill="rgba(0,0,0,0.35)"
+      />
+      <path
+        d={`M ${cx - 3.5} ${cy} L ${cx} ${cy - length} L ${cx + 3.5} ${cy} Z`}
+        fill="#1e293b"
+        stroke="rgba(255,255,255,0.18)"
+        strokeWidth={0.6}
+        strokeLinejoin="round"
+      />
+      <line
+        x1={cx} y1={cy - length + 18}
+        x2={cx} y2={cy - length}
+        stroke="rgba(255,255,255,0.65)"
+        strokeWidth={1.2}
+        strokeLinecap="round"
+      />
+    </g>
+  );
+};
+
 const SpeedometerGauge = ({ value }: { value: number }) => {
   const { theme } = useTheme();
   const dark = theme === "dark";
@@ -154,13 +224,9 @@ const SpeedometerGauge = ({ value }: { value: number }) => {
             fill={labelFill} fontSize={7.5} fontFamily="JetBrains Mono" fontWeight="600">{val}</text>
         </g>
       ))}
-      <motion.g style={{ transformOrigin: `${cx}px ${cy}px` }}
-        initial={{ rotate: -90 }} animate={{ rotate: targetRot }}
-        transition={{ type: "spring", stiffness: 26, damping: 7, delay: 0.4 }}>
-        <line x1={cx} y1={cy + 14} x2={cx} y2={cy - NL} stroke="rgba(0,0,0,0.18)" strokeWidth={7} strokeLinecap="round" />
-        <line x1={cx} y1={cy + 14} x2={cx} y2={cy - NL} stroke="#1e293b" strokeWidth={3.5} strokeLinecap="round" />
-        <line x1={cx} y1={cy - NL + 20} x2={cx} y2={cy - NL} stroke="rgba(255,255,255,0.7)" strokeWidth={1.5} strokeLinecap="round" />
-      </motion.g>
+      {/* Tapered needle — pivots at exact SVG coords (cx, cy) via native rotate(angle, cx, cy). */}
+      <Needle cx={cx} cy={cy} length={NL} targetRot={targetRot} />
+      {/* hub — drawn AFTER the needle so the triangle base is masked under it */}
       <circle cx={cx} cy={cy} r={13} fill={hubFill} stroke={hubStroke} strokeWidth={1.5} />
       <circle cx={cx} cy={cy} r={5.5} fill={hubMid} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
       <circle cx={cx} cy={cy} r={2.2} fill={hubDot} />

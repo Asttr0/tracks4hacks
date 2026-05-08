@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Globe2, MapPin, Activity, Clock } from "lucide-react";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
+import { NeonEdge } from "../../components/ui/NeonEdge";
 import { StatusDot } from "../../components/ui/StatusDot";
 import { Badge } from "../../components/ui/Badge";
 import { GeoMap, type GeoMapHandle } from "../../components/views/GeoMap";
@@ -38,6 +39,7 @@ interface KpiProps {
 
 const Kpi = ({ label, value, icon: Icon, accent }: KpiProps) => (
   <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 dark:border-soc-border dark:bg-soc-panel">
+    <NeonEdge color={accent} intensity="bright" />
     <div
       aria-hidden
       className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-25 blur-2xl"

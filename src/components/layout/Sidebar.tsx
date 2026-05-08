@@ -137,7 +137,7 @@ export const Sidebar = ({ open, onToggle }: SidebarProps) => {
               className="font-cinematic text-[26px] tracking-[0.04em] whitespace-nowrap text-red-600 select-none"
               style={{ textShadow: "0 0 14px rgba(220,38,38,0.45)" }}
             >
-              Tracks<span className="text-slate-900 dark:text-white">4</span>Hacks
+              TRACKS<span className="text-slate-900 dark:text-white">4</span>HACKS
             </motion.h2>
           ) : (
             <motion.span
