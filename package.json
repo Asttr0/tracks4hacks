@@ -25,6 +25,7 @@
     "react-map-gl": "^8.1.1",
     "react-router-dom": "^7.15.0",
     "recharts": "^2.12.7",
+    "simple-icons": "^16.18.1",
     "three": "^0.184.0",
     "zustand": "^4.5.4"
   },
@@ -45,9 +46,9 @@
     "vitest": "^2.0.5"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "*",
-    "@rollup/rollup-win32-x64-msvc": "*",
+    "@rollup/rollup-darwin-arm64": "*",
     "@rollup/rollup-darwin-x64": "*",
-    "@rollup/rollup-darwin-arm64": "*"
+    "@rollup/rollup-linux-x64-gnu": "*",
+    "@rollup/rollup-win32-x64-msvc": "*"
   }
 }
