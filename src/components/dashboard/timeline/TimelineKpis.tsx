@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Eye, Filter, Sparkles, Timer } from 'lucide-react'
 import { formatLag, type TimelineModel } from '@/lib/timeline'
+import { NeonEdge } from '@/components/ui/NeonEdge'
 import type { TimelineState } from './state'
 
 interface Props {
@@ -91,8 +92,7 @@ const RingCard = ({ label, value, sub, ratio, tint }: {
 
   return (
     <div className="relative overflow-hidden rounded-lg border border-soc-border bg-soc-panel p-4">
-      <div className="absolute inset-x-0 top-0 h-px"
-           style={{ background: `linear-gradient(90deg, transparent, ${tint}, transparent)`, opacity: 0.6 }} />
+      <NeonEdge color={tint} intensity="bright" />
       <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-green-400">{label}</p>
       <div className="mt-3 flex items-center gap-4">
         <svg width="80" height="80" viewBox="0 0 80 80" className="shrink-0 -rotate-90">
@@ -127,8 +127,7 @@ interface StatCardProps {
 
 const StatCard = ({ label, value, sub, icon: Icon, tint, toggle }: StatCardProps) => (
   <div className="relative overflow-hidden rounded-lg border border-soc-border bg-soc-panel p-4">
-    <div className="absolute inset-x-0 top-0 h-px"
-         style={{ background: `linear-gradient(90deg, transparent, ${tint}, transparent)`, opacity: 0.5 }} />
+    <NeonEdge color={tint} intensity="bright" />
     <div className="flex items-start justify-between">
       <div>
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: tint }}>{label}</p>

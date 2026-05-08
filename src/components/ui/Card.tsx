@@ -1,10 +1,13 @@
 import { HTMLAttributes, ReactNode } from "react";
 import { clsx } from "../../lib/clsx";
+import { NeonEdge } from "./NeonEdge";
 
 interface CardProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
   title?: ReactNode;
   meta?: ReactNode;
   as?: "section" | "article" | "div";
+  /** Hex/rgb color — when set, renders the pulsing neon edge on the top. */
+  accent?: string;
 }
 
 export const Card = ({
@@ -13,15 +16,17 @@ export const Card = ({
   as: Tag = "section",
   className,
   children,
+  accent,
   ...rest
 }: CardProps) => (
   <Tag
     className={clsx(
-      "rounded-lg border border-slate-200 bg-white p-4 lg:p-6 dark:border-soc-border dark:bg-soc-panel",
+      "relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 lg:p-6 dark:border-soc-border dark:bg-soc-panel",
       className,
     )}
     {...rest}
   >
+    {accent && <NeonEdge color={accent} intensity="bright" />}
     {(title || meta) && (
       <header className="mb-4 flex items-center justify-between gap-4">
         {title && (

@@ -51,7 +51,9 @@ export const useTimelineState = (): TimelineState => {
   const [selection, select] = useState<Selection | null>(null)
   const [technique, setTechnique] = useState<string | null>(null)
   const [phantom, setPhantom] = useState(false)
-  const [playhead, setPlayhead] = useState<number | null>(null)
+  // Default playhead = 0 → canvas starts empty, events reveal when user hits Play.
+  // Click "LIVE" to jump to null (show everything).
+  const [playhead, setPlayhead] = useState<number | null>(0)
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(1)
   const [missedOnly, setMissedOnly] = useState(false)
