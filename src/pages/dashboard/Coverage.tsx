@@ -18,7 +18,7 @@ import {
   TOOL_COLORS, delayColor, getDelayLabel, groupByTool,
 } from "../../components/dashboard/coverage";
 import { DEMO_KPI, DEMO_MISSED, DEMO_DETECTED, DEMO_MTTD_BARS } from "../../data/demo-coverage";
-import type { CoverageKpi } from "../../types/coverage";
+import type { CoverageKpi, DetectedAttack, MissedAttack } from "../../types/coverage";
 
 // Re-exports for backwards compatibility (Incidents page imports these from here)
 export { PrintableReport, type PrintableReportProps } from "../../components/dashboard/coverage";
@@ -43,8 +43,8 @@ export default function Coverage() {
   const toggleDemo = useUiStore((s) => s.toggleDemo);
 
   const kpi      = demoMode ? DEMO_KPI      : EMPTY_KPI;
-  const missed   = demoMode ? DEMO_MISSED   : [];
-  const detected = demoMode ? DEMO_DETECTED : [];
+  const missed: MissedAttack[]     = demoMode ? DEMO_MISSED   : [];
+  const detected: DetectedAttack[] = demoMode ? DEMO_DETECTED : [];
   const noRuleCount  = missed.filter((a) => a.missReason === "NO_RULE").length;
   const timeoutCount = missed.filter((a) => a.missReason === "TIMEOUT").length;
   const minDelay = detected.length ? Math.min(...detected.map((d) => d.delaySeconds)) : 0;
