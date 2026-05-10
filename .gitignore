@@ -28,7 +28,7 @@ vitest.config.js
 .netlify/
 
 # Test / coverage
-coverage/
+/coverage/
 .vitest-cache/
 
 # Editor / OS
