@@ -31,6 +31,9 @@ vitest.config.js
 /coverage/
 .vitest-cache/
 
+# Claude Code
+.claude/
+
 # Editor / OS
 .vscode/
 .idea/
