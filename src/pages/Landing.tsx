@@ -344,7 +344,7 @@ export default function Landing() {
                     />
                   </div>
 
-                  <p className="mt-5 text-base md:text-lg text-gray-300 leading-relaxed max-w-xl mx-auto">
+                  <p className="mt-5 text-base md:text-lg text-gray-300 leading-relaxed max-w-xl mx-auto font-cinematic uppercase tracking-wide">
                     Tracer chaque pas — du shell de l'attaquant à l'alerte du
                     défenseur, sur un seul tableau de bord.
                   </p>
