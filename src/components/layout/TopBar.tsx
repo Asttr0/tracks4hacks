@@ -1,38 +1,35 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom"; //recupere l'url courante pour afficher le titre de la page dans la topbar
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Activity, Beaker } from "lucide-react";
 import { ThemeToggle } from "../landing/ThemeToggle";
 import { useUiStore } from "../../store/useUiStore";
 
-const PAGE_LABELS: Record<string, string> = {
-  "/dashboard":           "Vue d'ensemble",
-  "/dashboard/map":       "GeoIP Map",
-  "/dashboard/timeline":  "Timeline",
-  "/dashboard/mitre":     "MITRE ATT&CK",
-  "/dashboard/incidents": "Incidents",
-  "/dashboard/coverage":  "Coverage Scoreboard",
-};
-
-interface TopBarProps {
-  onOpenPalette: () => void;
-}
-
-export const TopBar = ({ onOpenPalette }: TopBarProps) => {
+export const TopBar = () => {
   const [time, setTime] = useState(() => new Date());
   const location = useLocation();
   const demoMode = useUiStore((s) => s.demoMode);
   const toggleDemo = useUiStore((s) => s.toggleDemo);
+  const openPalette = useUiStore((s) => s.openPalette);
 
-  const pageLabel = PAGE_LABELS[location.pathname] ?? "SOC Console";
-  const utcOffset = time.getTimezoneOffset() / -60;
-
+  let pageLabel: string;
+  if      (location.pathname === "/dashboard")           pageLabel = "Vue d'ensemble";
+  else if (location.pathname === "/dashboard/map")       pageLabel = "GeoIP Map";
+  else if (location.pathname === "/dashboard/timeline")  pageLabel = "Timeline";
+  else if (location.pathname === "/dashboard/mitre")     pageLabel = "MITRE ATT&CK";
+  else if (location.pathname === "/dashboard/incidents") pageLabel = "Incidents";
+  else if (location.pathname === "/dashboard/coverage")  pageLabel = "Coverage Scoreboard";
+  else if (location.pathname === "/dashboard/replay")    pageLabel = "Attack Replay";
+  else                                                   pageLabel = "SOC Console";
+  
+  //horloge qui se met à jour chaque seconde
   useEffect(() => {
     const id = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
 
   return (
+    /* Animation d'entrée */
     <motion.header
       initial={{ y: -16, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -40,10 +37,10 @@ export const TopBar = ({ onOpenPalette }: TopBarProps) => {
       className="sticky top-0 z-30 grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-slate-200/60 bg-white/40 px-6 backdrop-blur-xl
         dark:border-night-bordeaux-900/30 dark:bg-black/40"
     >
-      {/* Top accent line */}
+      {/* une ligne decoratif en haut */}
       <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-night-bordeaux-500/40 to-transparent" />
 
-      {/* === LEFT : breadcrumb / system identifier === */}
+      {/*  COLONNE GAUCHE — icône + titre de page */}
       <div className="flex min-w-0 items-center gap-3">
         <div className="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-night-bordeaux-700/40 bg-gradient-to-br from-night-bordeaux-900/40 to-pitch-black-950/60 shadow-[inset_0_0_14px_rgba(196,59,59,0.18)]">
           <Activity size={16} className="text-night-bordeaux-500 dark:text-night-bordeaux-300" strokeWidth={2} />
@@ -72,9 +69,9 @@ export const TopBar = ({ onOpenPalette }: TopBarProps) => {
         </div>
       </div>
 
-      {/* === CENTER : search === */}
+      {/* COLONNE CENTRE — bouton recherche */}
       <button
-        onClick={onOpenPalette}
+        onClick={openPalette} 
         className="group flex w-[min(560px,80vw)] items-center gap-3 rounded-full border border-slate-300/60 bg-white/60 px-5 py-3 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.15)] transition-all duration-300
           hover:border-night-bordeaux-500/50 hover:bg-night-bordeaux-50/30 hover:shadow-[0_0_30px_-4px_rgba(196,59,59,0.4)]
           focus:outline-none focus:border-night-bordeaux-500/70 focus:bg-night-bordeaux-50/40
@@ -82,6 +79,7 @@ export const TopBar = ({ onOpenPalette }: TopBarProps) => {
           dark:focus:border-night-bordeaux-500/60 dark:focus:bg-night-bordeaux-500/10"
         aria-label="Open command palette"
       >
+        {/* Search icon */}
         <Search
           size={16}
           className="text-slate-500 transition-colors group-hover:text-night-bordeaux-600 dark:text-coffee-bean-200/50 dark:group-hover:text-night-bordeaux-400"
@@ -89,12 +87,14 @@ export const TopBar = ({ onOpenPalette }: TopBarProps) => {
         <span className="flex-1 text-left font-mono text-xs text-slate-500 dark:text-coffee-bean-200/50">
           Rechercher pages, actions, alertes…
         </span>
+        
+        {/* kbd indique au utilisateur les raccourcis clavier */}
         <kbd className="hidden items-center rounded-md border border-slate-300/70 bg-slate-100/80 px-2 py-0.5 font-mono text-[10px] text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-coffee-bean-200/60 sm:inline-flex">
-          ⌘K
+          Ctrl+K
         </kbd>
       </button>
 
-      {/* === RIGHT : merged LIVE/DEMO switch + clock + theme === */}
+      {/* COLONNE DROITE — switch mode + horloge + thème */}
       <div className="flex items-center justify-end gap-3">
         {/* Merged segmented switch */}
         <div
@@ -198,9 +198,6 @@ export const TopBar = ({ onOpenPalette }: TopBarProps) => {
         <div className="hidden items-center gap-1.5 font-mono text-[11px] text-slate-600 dark:text-coffee-bean-100/70 lg:flex">
           <Activity size={12} className="text-night-bordeaux-600 dark:text-night-bordeaux-400" />
           <span className="tabular-nums">{time.toTimeString().slice(0, 8)}</span>
-          <span className="text-slate-400 dark:text-coffee-bean-200/40">
-            UTC{utcOffset >= 0 ? `+${utcOffset}` : utcOffset}
-          </span>
         </div>
 
         <ThemeToggle />

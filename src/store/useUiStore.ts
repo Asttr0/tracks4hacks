@@ -7,12 +7,16 @@ import { useLogStore } from '@/store/useLogStore'
 export type ViewId = 'timeline' | 'mitre' | 'coverage' | 'geo' | 'alerts'
 
 type UiState = {
+  sidebarOpen: boolean
+  toggleSidebar: () => void
   demoMode: boolean
   toggleDemo: () => void
   activeView: ViewId
   setView: (v: ViewId) => void
   paletteOpen: boolean
   setPalette: (b: boolean) => void
+  openPalette: () => void
+  closePalette: () => void
   attackLog: AttackEvent[]
   setAttackLog: (arr: AttackEvent[]) => void
   pushAttack: (a: AttackEvent) => void
@@ -28,12 +32,16 @@ type UiState = {
 }
 
 export const useUiStore = create<UiState>((set) => ({
+  sidebarOpen: false,
+  toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   demoMode: false,
   toggleDemo: () => set((s) => ({ demoMode: !s.demoMode })),
   activeView: 'timeline',
   setView: (v) => set({ activeView: v }),
   paletteOpen: false,
   setPalette: (b) => set({ paletteOpen: b }),
+  openPalette: () => set({ paletteOpen: true }),
+  closePalette: () => set({ paletteOpen: false }),
   attackLog: [],
   setAttackLog: (arr) => set({ attackLog: arr }),
   pushAttack: (a) => set((s) => ({ attackLog: [a, ...s.attackLog] })),
