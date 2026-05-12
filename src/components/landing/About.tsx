@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Eye, AlertTriangle, Target, Zap } from "lucide-react";
-import { SectionHeader } from "./SectionHeader";
 import { fadeUp, stagger, viewport } from "./anim";
 
 const STEPS = [
@@ -27,27 +26,6 @@ const STEPS = [
 export const About = () => (
   <section id="about" className="relative py-32 px-6 lg:px-16 xl:px-24">
     <div className="max-w-7xl mx-auto">
-      <SectionHeader
-        eyebrow="Le Problème"
-        title="Et si vous pouviez voir une cyberattaque... en direct ?"
-        description="Chaque jour, des milliers d'entreprises subissent des tentatives d'intrusion sans même le savoir. Des hackers scannent des ports, forcent des mots de passe, exploitent des failles — le tout en quelques secondes. La vraie question n'est pas « est-ce qu'on nous attaque ? » mais plutôt :"
-      />
-
-      {/* Lead paragraph */}
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="show"
-        viewport={viewport}
-        className="mt-10 max-w-4xl"
-      >
-        <div className="border-l-2 border-red-600/60 pl-6 py-2">
-          <p className="font-cinematic text-xl md:text-2xl text-slate-900 dark:text-white italic">
-            « Quand on nous a attaqués... est-ce qu'on l'a vu passer ? »
-          </p>
-        </div>
-      </motion.div>
-
       {/* Problem explanation */}
       <div className="mt-24 mb-14">
         <motion.p
@@ -83,8 +61,15 @@ export const About = () => (
           transition={{ duration: 0.8, delay: 0.3 }}
           className="max-w-2xl text-slate-600 dark:text-gray-400 text-base md:text-lg leading-relaxed"
         >
-          Pas de canal direct. Pas de tableau commun. L'équipe offensive et l'équipe défensive
-          travaillent chacune dans son coin — et c'est là que les attaques passent inaperçues.
+          Dans toute simulation de cybersécurité, deux entités interviennent : l'équipe offensive (la{" "}
+          <span className="text-red-600 dark:text-red-400 font-semibold">Red Team</span>), qui mène
+          les attaques pour tester les vulnérabilités, et l'équipe défensive (la{" "}
+          <span className="text-slate-900 dark:text-white font-semibold">Blue Team</span>), chargée
+          de surveiller le réseau et de détecter ces menaces.
+          <br /><br />
+          Pourtant, sans canal direct ni tableau de bord commun, ces attaquants et défenseurs opèrent
+          de manière isolée. Ce manque de communication crée d'énormes{" "}
+          <span className="text-red-600 dark:text-red-400 font-semibold">angles morts</span>.
         </motion.p>
       </div>
 
@@ -142,10 +127,10 @@ export const About = () => (
               Élimine ce décalage
             </h3>
             <p className="text-slate-700 dark:text-gray-300 text-base leading-relaxed">
-              Chaque attaque et chaque alerte de détection sont{" "}
-              <span className="text-red-600 dark:text-red-400 font-semibold">corrélées automatiquement</span>,
-              en direct, et affichées sur un tableau de bord unique. Plus besoin de tableurs : l'écart
-              de détection est visible en un coup d'œil.
+              Tracks4Hacks relie automatiquement et en temps réel chaque attaque offensive à son alerte
+              défensive. Grâce à notre{" "}
+              <span className="text-red-600 dark:text-red-400 font-semibold">tableau de bord centralisé</span>,
+              l'écart de détection devient visible en un seul coup d'œil.
             </p>
           </div>
         </div>

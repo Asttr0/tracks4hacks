@@ -8,10 +8,9 @@ import { AnimatedBackground } from "../components/landing/AnimatedBackground";
 import { About } from "../components/landing/About";
 import { SecurityTools } from "../components/landing/SecurityTools";
 import { TechStack } from "../components/landing/TechStack";
-import { Architecture } from "../components/landing/Architecture";
 import { ArchitectureDiagram } from "../components/landing/ArchitectureDiagram";
 import { Features } from "../components/landing/Features";
-import { SecurityPosture } from "../components/landing/SecurityPosture";
+import { WebMeetsCyber } from "../components/landing/WebMeetsCyber";
 import { Authors } from "../components/landing/Authors";
 import { CTASection } from "../components/landing/CTASection";
 import { LandingFooter } from "../components/landing/LandingFooter";
@@ -394,13 +393,12 @@ export default function Landing() {
               </motion.div>
             </section>
 
+            <WebMeetsCyber />
             <About />
             <SecurityTools />
             <TechStack />
-            <Architecture />
             <ArchitectureDiagram />
             <Features />
-            <SecurityPosture />
             <Authors />
             <CTASection onLaunch={launchDashboard} />
             <LandingFooter />
