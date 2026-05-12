@@ -429,12 +429,14 @@ export const ArchitectureDiagram = () => {
               <text x={bff.x + 52} y={bff.y + 36}
                 fill={c.title} fontSize="20" fontWeight="700">BFF Function</text>
               <text x={bff.x + 16} y={bff.y + 68} fill={c.body} fontSize="14">› /api/wazuh-alerts (proxy)</text>
-              <text x={bff.x + 16} y={bff.y + 90} fill={c.body} fontSize="14">› /api/wazuh-stream (SSE)</text>
-              <text x={bff.x + 16} y={bff.y + 112} fill={c.body} fontSize="14">› /api/attack-replay</text>
-              <text x={bff.x + 16} y={bff.y + 134} fill={c.body} fontSize="14">› JWT cache 14 min</text>
-              <text x={bff.x + 16} y={bff.y + 168} fill={c.muted} fontSize="13">Credentials Wazuh</text>
-              <text x={bff.x + 16} y={bff.y + 188} fill={c.muted} fontSize="13">server-side only</text>
-              <text x={bff.x + 16} y={bff.y + 230} fill="#14b8a6"
+              <text x={bff.x + 16} y={bff.y + 88} fill={c.body} fontSize="14">› /api/wazuh-stream (SSE)</text>
+              <text x={bff.x + 16} y={bff.y + 108} fill={c.body} fontSize="14">› /api/attack-replay</text>
+              <text x={bff.x + 16} y={bff.y + 128} fill={c.body} fontSize="14">› /api/geoip</text>
+              <text x={bff.x + 16} y={bff.y + 148} fill={c.body} fontSize="14">› /api/wazuh-agents</text>
+              <text x={bff.x + 16} y={bff.y + 172} fill={c.body} fontSize="14">› JWT cache 14 min</text>
+              <text x={bff.x + 16} y={bff.y + 204} fill={c.muted} fontSize="13">Credentials Wazuh</text>
+              <text x={bff.x + 16} y={bff.y + 224} fill={c.muted} fontSize="13">server-side only</text>
+              <text x={bff.x + 16} y={bff.y + 256} fill="#14b8a6"
                 fontSize="13" letterSpacing="2" fontWeight="700">Node.js · Edge</text>
 
               {/* Static CDN */}
@@ -478,12 +480,14 @@ export const ArchitectureDiagram = () => {
               {/* Zustand Store */}
               <rect x={zs.x} y={zs.y} width={zs.w} height={zs.h} rx="10"
                 fill={c.subPanelFill} stroke="rgba(97,218,251,0.40)" strokeWidth="1.2" />
-              <text x={zs.x + zs.w / 2} y={zs.y + 38} textAnchor="middle"
+              <text x={zs.x + zs.w / 2} y={zs.y + 34} textAnchor="middle"
                 fill={c.title} fontSize="20" fontWeight="700">Zustand Store</text>
-              <text x={zs.x + zs.w / 2} y={zs.y + 66} textAnchor="middle"
-                fill={c.body} fontSize="15">useUiStore · useLogStore</text>
-              <text x={zs.x + zs.w / 2} y={zs.y + 90} textAnchor="middle"
-                fill={c.muted} fontSize="13">État global typé · sans drilling</text>
+              <text x={zs.x + zs.w / 2} y={zs.y + 58} textAnchor="middle"
+                fill={c.body} fontSize="13">useUiStore · useLogStore</text>
+              <text x={zs.x + zs.w / 2} y={zs.y + 76} textAnchor="middle"
+                fill={c.body} fontSize="13">streamStore</text>
+              <text x={zs.x + zs.w / 2} y={zs.y + 96} textAnchor="middle"
+                fill={c.muted} fontSize="12">État global · sans drilling</text>
 
               {/* R/B Timeline */}
               <rect x={rb.x} y={rb.y} width={rb.w} height={rb.h} rx="10"
@@ -492,7 +496,7 @@ export const ArchitectureDiagram = () => {
               <text x={rb.x + rb.w / 2} y={rb.y + 36} textAnchor="middle"
                 fill={c.title} fontSize="17" fontWeight="700">R/B Timeline</text>
               <text x={rb.x + rb.w / 2} y={rb.y + 64} textAnchor="middle"
-                fill={c.body} fontSize="13">Recharts</text>
+                fill={c.body} fontSize="13">Custom SVG</text>
               <text x={rb.x + rb.w / 2} y={rb.y + 88} textAnchor="middle"
                 fill={c.muted} fontSize="12">double axe</text>
               <text x={rb.x + rb.w / 2} y={rb.y + 110} textAnchor="middle"
