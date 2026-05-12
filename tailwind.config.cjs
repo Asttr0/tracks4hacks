@@ -44,7 +44,8 @@ module.exports = {
         }
       },
       fontFamily: {
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+        sans: ['"IBM Plex Serif"', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
       }
     }
   },
