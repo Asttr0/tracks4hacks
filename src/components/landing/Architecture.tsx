@@ -65,10 +65,10 @@ const LAYERS: Layer[] = [
     step: "04",
     title: "Le Dashboard",
     subtitle: "Frontend React (CDN Netlify)",
-    desc: "Le bundle React, servi via le CDN Netlify, affiche les données dans six vues interactives. Zustand pour l'état global, TanStack Query pour la synchro serveur, Recharts pour les graphes.",
+    desc: "Le bundle React, servi via le CDN Netlify, affiche les données dans six vues interactives. Zustand + streamStore pour l'état global et le flux SSE, Recharts pour les graphes de coverage.",
     details: [
       "Timeline Red/Blue, Heatmap MITRE, GeoIP",
-      "Coverage Scoreboard, Replay, Rapports PDF",
+      "Coverage Scoreboard, Rapports PDF",
       "CI/CD GitHub Actions — tests + déploiement auto",
     ],
     icon: Monitor,
