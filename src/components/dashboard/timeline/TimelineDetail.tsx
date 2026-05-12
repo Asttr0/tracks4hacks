@@ -87,7 +87,6 @@ export const TimelineDetail = ({ model, state }: Props) => {
                     reverseCorr={reverseCorr ?? null}
                     counterpartAttack={counterpartAttack ?? undefined}
                     state={state}
-                    model={model}
                   />
                 )}
               </motion.div>
@@ -245,14 +244,12 @@ const AttackDetailBody = ({ attack, corr, model, state }: {
 
 /* ---------- alert body ---------- */
 
-const AlertDetailBody = ({ alert, reverseCorr, counterpartAttack, state, model }: {
+const AlertDetailBody = ({ alert, reverseCorr, counterpartAttack, state }: {
   alert: NonNullable<ReturnType<TimelineModel['alerts']['find']>>
   reverseCorr: ReturnType<typeof Array.prototype.find> | null
   counterpartAttack: ReturnType<TimelineModel['attacks']['find']>
   state: TimelineState
-  model: TimelineModel
 }) => {
-  void model
   const navigate = useNavigate()
   const tint = SEVERITY_HEX[alert.severity]
   const [showRaw, setShowRaw] = useState(false)

@@ -27,7 +27,7 @@ export const Heatstrip = ({ model }: Props) => {
         <div
           key={i}
           className="flex-1"
-          style={{ background: cellColor(c.ratio, c.l) }}
+          style={{ background: cellColor(c.ratio) }}
           title={c.l ? `${Math.round(c.ratio * 100)}%` : ''}
         />
       ))}
@@ -35,9 +35,8 @@ export const Heatstrip = ({ model }: Props) => {
   )
 }
 
-const cellColor = (ratio: number, count: number): string => {
+const cellColor = (ratio: number): string => {
   if (ratio === -1) return 'rgba(255,255,255,0.04)'
-  if (count === 0) return 'rgba(255,255,255,0.04)'
   if (ratio >= 0.99) return 'rgba(34, 197, 94, 0.85)'
   if (ratio >= 0.66) return 'rgba(132, 204, 22, 0.8)'
   if (ratio >= 0.33) return 'rgba(245, 158, 11, 0.85)'
