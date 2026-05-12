@@ -12,7 +12,6 @@ import { StatusDot } from "../../components/ui/StatusDot";
 import { Badge } from "../../components/ui/Badge";
 import { NeonEdge } from "../../components/ui/NeonEdge";
 import { useStreamStore } from "../../store/streamStore";
-import { useStream } from "../../hooks/useStream";
 import type { Alert, Severity } from "../../types/Alert";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -31,7 +30,7 @@ const SEVERITY_RANK: Record<Severity, number> = {
 };
 
 export default function Overview() {
-  const { status } = useStream();
+  const status = useStreamStore((s) => s.status);
   const alerts = useStreamStore((s) => s.alerts);
   const geoEvents = useStreamStore((s) => s.geoEvents);
 

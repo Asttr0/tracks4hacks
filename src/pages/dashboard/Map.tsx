@@ -7,7 +7,6 @@ import { StatusDot } from "../../components/ui/StatusDot";
 import { Badge } from "../../components/ui/Badge";
 import { GeoMap, type GeoMapHandle } from "../../components/views/GeoMap";
 import { useStreamStore } from "../../store/streamStore";
-import { useStream } from "../../hooks/useStream";
 import type { Severity } from "../../types/Alert";
 
 const SEVERITY_HEX: Record<Severity, string> = {
@@ -54,7 +53,7 @@ const Kpi = ({ label, value, icon: Icon, accent }: KpiProps) => (
 );
 
 export default function Map() {
-  const { status } = useStream();
+  const status = useStreamStore((s) => s.status);
   const geoEvents = useStreamStore((s) => s.geoEvents);
   const mapRef = useRef<GeoMapHandle>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
