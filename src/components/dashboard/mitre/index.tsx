@@ -46,7 +46,7 @@ export const MitreView = () => {
       </div>
 
       {/* main heatmap — always full-width */}
-      <div className="relative overflow-hidden rounded-lg border border-white/10 bg-soc-panel">
+      <div className="relative overflow-hidden rounded-lg border border-white/[0.06] bg-black/20 backdrop-blur-sm">
         <NeonEdge color={NEON_RED} intensity="bright" />
         <MitreMatrix
           cellsByTactic={model.cellsByTactic}
@@ -64,11 +64,11 @@ export const MitreView = () => {
 
       {/* distribution charts */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="relative h-[480px] overflow-hidden rounded-lg border border-white/10 bg-soc-panel p-5">
+        <div className="relative h-[480px] overflow-hidden rounded-lg border border-white/[0.06] bg-black/20 backdrop-blur-sm p-5">
           <NeonEdge color={NEON_RED} intensity="bright" />
           <ChartByTactic stats={model.tacticStats} />
         </div>
-        <div className="relative h-[480px] overflow-hidden rounded-lg border border-white/10 bg-soc-panel p-5">
+        <div className="relative h-[480px] overflow-hidden rounded-lg border border-white/[0.06] bg-black/20 backdrop-blur-sm p-5">
           <NeonEdge color={NEON_RED} intensity="bright" />
           <ChartByTime buckets={model.buckets} timeframe={timeframe} />
         </div>

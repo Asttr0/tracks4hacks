@@ -39,7 +39,7 @@ export const TimelineDetail = ({ model, state }: Props) => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 24 }}
           transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
-          className="flex w-full flex-col rounded-lg border border-soc-border bg-soc-panel lg:w-[420px]"
+          className="flex w-full flex-col rounded-lg border border-white/[0.06] bg-black/20 backdrop-blur-sm lg:w-[420px]"
         >
           <header className="flex items-center justify-between border-b border-white/5 px-4 py-3">
             <AnimatePresence mode="wait" initial={false}>

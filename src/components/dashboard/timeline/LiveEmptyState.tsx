@@ -34,7 +34,7 @@ export const LiveStatusBanner = ({ prominent }: Props) => {
       initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className={`relative overflow-hidden rounded-lg border ${prominent ? 'border-red-500/40 bg-gradient-to-r from-red-950/30 via-soc-panel to-purple-950/30 p-5' : 'border-soc-border bg-soc-panel p-3'}`}
+      className={`relative overflow-hidden rounded-lg border backdrop-blur-sm ${prominent ? 'border-red-500/40 bg-gradient-to-r from-red-950/30 via-black/20 to-purple-950/30 p-5' : 'border-white/[0.06] bg-black/20 p-3'}`}
     >
       <div className="flex flex-wrap items-center gap-4">
         <div className="grid size-10 shrink-0 place-items-center rounded-full border border-red-500/40 bg-red-500/10">

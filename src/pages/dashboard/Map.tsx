@@ -37,7 +37,7 @@ interface KpiProps {
 }
 
 const Kpi = ({ label, value, icon: Icon, accent }: KpiProps) => (
-  <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 dark:border-soc-border dark:bg-soc-panel">
+  <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
     <NeonEdge color={accent} intensity="bright" />
     <div
       aria-hidden
