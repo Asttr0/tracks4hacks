@@ -5,7 +5,7 @@ import { Card } from "../../components/ui/Card";
 import { NeonEdge } from "../../components/ui/NeonEdge";
 import { StatusDot } from "../../components/ui/StatusDot";
 import { Badge } from "../../components/ui/Badge";
-import { GeoMap, type GeoMapHandle } from "../../components/views/GeoMap";
+import { GeoMap, type GeoMapHandle } from "../../components/dashboard/geo/GeoMap";
 import { useStreamStore } from "../../store/streamStore";
 import type { Severity } from "../../types/Alert";
 
