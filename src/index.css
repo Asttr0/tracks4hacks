@@ -1,10 +1,10 @@
 /*
  * Type stack
- *   Cinzel         — brand / display titles (Tracks4Hacks, page headers)
- *   Manrope        — body / labels (replaces Inter for less-generic feel)
- *   JetBrains Mono — telemetry / numerics / IPs / code
+ *   Cinzel          — brand / display titles (Tracks4Hacks, page headers)
+ *   IBM Plex Serif  — body / labels / descriptions
+ *   JetBrains Mono  — telemetry / numerics / IPs / code
  */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -21,7 +21,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: #000;
-  font-family: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
   font-feature-settings: 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
