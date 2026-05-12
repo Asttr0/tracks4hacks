@@ -20,7 +20,7 @@ import {
 import { SectionHeader } from "./SectionHeader";
 import { fadeUp, stagger, viewport } from "./anim";
 
-type Tech = { name: string; role: string; meta: string };
+type Tech = { name: string; role: string; meta?: string };
 type Category = { id: string; label: string; icon: LucideIcon; items: Tech[] };
 
 /* ─── Logo source map ─────────────────────────────────────── */
@@ -128,39 +128,45 @@ const CATEGORIES: Category[] = [
     ],
   },
   {
-    id: "security",
-    label: "Sécurité & Détection",
-    icon: Shield,
+    id: "frontend",
+    label: "Frontend & Interface",
+    icon: Layout,
     items: [
       {
-        name: "Wazuh",
-        role: "SIEM open-source — centralisation et analyse des logs",
-        meta: "Cœur de la Blue Team. Reçoit les événements, applique les règles de détection, étiquette MITRE ATT&CK. API REST :55000.",
+        name: "React 19",
+        role: "Structure le tableau de bord en composants réutilisables pour garantir une navigation instantanée et fluide.",
       },
       {
-        name: "Suricata",
-        role: "IDS open-source — inspection du trafic réseau temps réel",
-        meta: "Surveille les paquets sur la VM. Alertes intégrées dans le flux Wazuh.",
+        name: "TypeScript 5.4",
+        role: "Sécurise notre code en typant strictement les données d'attaques pour éviter toute erreur d'exécution.",
       },
       {
-        name: "nmap",
-        role: "Scanner de ports et de services réseau",
-        meta: "Cartographie les ports ouverts de la cible — MITRE T1046.",
+        name: "Vite 6",
+        role: "Accélère considérablement le temps de développement et optimise le chargement de l'application finale.",
       },
       {
-        name: "hydra",
-        role: "Outil de brute-force de mots de passe",
-        meta: "Teste des combinaisons de mots de passe — MITRE T1110.",
+        name: "Tailwind CSS 3",
+        role: "Permet de concevoir rapidement une interface sur mesure avec une palette sombre idéale pour la cybersécurité.",
       },
       {
-        name: "metasploit",
-        role: "Framework d'exploitation de vulnérabilités",
-        meta: "Exploite des failles logicielles identifiées — MITRE T1190.",
+        name: "Zustand",
+        role: "Gère l'état global de l'application de manière légère et performante, sans complexifier l'architecture.",
       },
       {
-        name: "gobuster",
-        role: "Scanner de répertoires et sous-domaines web",
-        meta: "Brute-force des chemins URL — MITRE T1595.",
+        name: "Recharts",
+        role: "Transforme nos données complexes en graphiques lisibles pour comparer l'action offensive et défensive.",
+      },
+      {
+        name: "react-simple-maps",
+        role: "Géolocalise les adresses IP sur une carte interactive pour visualiser l'origine physique des menaces.",
+      },
+      {
+        name: "lucide-react",
+        role: "Fournit des icônes modernes et optimisées qui rendent notre tableau de bord intuitif sans l'alourdir.",
+      },
+      {
+        name: "Framer Motion",
+        role: "Donne vie à la plateforme grâce à des animations fluides qui guident l'œil de l'utilisateur.",
       },
     ],
   },
@@ -171,90 +177,19 @@ const CATEGORIES: Category[] = [
     items: [
       {
         name: "Netlify",
-        role: "Plateforme d'hébergement moderne (CDN + serverless)",
-        meta: "Sert le bundle React via CDN mondial. Déploiement auto depuis GitHub.",
+        role: "Héberge et déploie automatiquement l'application sur un réseau mondial pour garantir une disponibilité maximale.",
       },
       {
         name: "Netlify Functions",
-        role: "Backend serverless — fonctions Node.js à la demande",
-        meta: "4 fonctions : proxy alertes Wazuh, cache JWT, streaming SSE, déclencheur replay. Credentials côté serveur uniquement.",
+        role: "Exécute notre logique backend Node.js de manière sécurisée et à la demande, sans avoir à gérer de serveur physique.",
       },
       {
         name: "JWT",
-        role: "Standard d'authentification par jeton signé",
-        meta: "Authentifie les requêtes vers l'API Wazuh. Cache 14 minutes, auto-rafraîchi avant expiration.",
+        role: "Assure l'authentification sécurisée et le maintien de nos sessions lors des requêtes vers l'API externe.",
       },
       {
         name: "SSE",
-        role: "Server-Sent Events — streaming HTTP unidirectionnel",
-        meta: "Pousse les nouvelles alertes Wazuh vers le dashboard toutes les 5 secondes, sans polling.",
-      },
-    ],
-  },
-  {
-    id: "frontend",
-    label: "Frontend & Interface",
-    icon: Layout,
-    items: [
-      {
-        name: "React 19",
-        role: "Bibliothèque UI (créée par Meta)",
-        meta: "Structure le dashboard en composants réutilisables. SPA — navigation instantanée.",
-      },
-      {
-        name: "TypeScript 5.4",
-        role: "JavaScript typé — détecte les erreurs avant exécution",
-        meta: "Mode strict activé. Interfaces typées pour alertes, attaques, tactiques MITRE. Zéro erreur de compilation.",
-      },
-      {
-        name: "Vite 6",
-        role: "Build frontend ultra-rapide + bundler de production",
-        meta: "Rechargement instantané en dev. Build minifié et tree-shaké en ~10 fichiers optimisés.",
-      },
-      {
-        name: "Tailwind CSS 3",
-        role: "Framework CSS utility-first",
-        meta: "Stylisation directement dans le HTML. Palette sombre adaptée aux dashboards SOC.",
-      },
-      {
-        name: "Zustand",
-        role: "Gestion d'état global (alternative légère à Redux)",
-        meta: "Stores : useUiStore (mode démo, vue, alerte), useLogStore (logs d'attaque). Sans prop drilling.",
-      },
-      {
-        name: "TanStack Query",
-        role: "Gestionnaire d'état serveur — fetch, cache, retry",
-        meta: "Interroge /api/wazuh-alerts toutes les 10s hors démo. Loading, errors, cache transparents.",
-      },
-      {
-        name: "Recharts",
-        role: "Bibliothèque de graphiques React (basée sur D3)",
-        meta: "Génère la Timeline Red/Blue (double axe + zones ombrées) et le Coverage Scoreboard.",
-      },
-      {
-        name: "Fuse.js",
-        role: "Moteur de recherche floue côté client",
-        meta: "Alimente la Command Palette (Cmd+K). Trouve les vues même avec des fautes de frappe.",
-      },
-      {
-        name: "react-simple-maps",
-        role: "Bibliothèque de cartes géographiques React",
-        meta: "Carte du monde avec IPs source des attaquants, dimensionnées par volume d'alertes.",
-      },
-      {
-        name: "lucide-react",
-        role: "Icônes SVG optimisées et tree-shakeable",
-        meta: "Icônes du dashboard. Seules les icônes importées finissent dans le bundle.",
-      },
-      {
-        name: "date-fns",
-        role: "Manipulation de dates (alternative légère à Moment.js)",
-        meta: "Formate les horodatages, calcule les écarts attaque/alerte pour la corrélation.",
-      },
-      {
-        name: "Framer Motion",
-        role: "Bibliothèque d'animations React déclaratives",
-        meta: "Anime les cartes, transitions, scroll-reveal et toute la landing page.",
+        role: "Pousse les nouvelles alertes en temps réel vers le tableau de bord pour une surveillance réactive et sans latence.",
       },
     ],
   },
@@ -265,18 +200,15 @@ const CATEGORIES: Category[] = [
     items: [
       {
         name: "Vitest",
-        role: "Test runner unitaire optimisé pour Vite",
-        meta: "Teste correlator.ts, coverage.ts. >80% couverture. Vérifie la fenêtre de corrélation 120s.",
-      },
-      {
-        name: "GitHub",
-        role: "Plateforme d'hébergement de code basée sur Git",
-        meta: "Stocke le dépôt, suit les issues et discussions entre développeurs.",
+        role: "Garantit la fiabilité de notre logique de corrélation grâce à des tests unitaires rigoureux à chaque étape.",
       },
       {
         name: "GitHub Actions",
-        role: "Pipeline CI/CD — tests automatisés et déploiement continu",
-        meta: "Sur chaque push : types TS + tests Vitest. Sur main : déploiement Netlify auto.",
+        role: "Automatise nos pipelines de tests et de déploiement continu pour assurer une mise en production fluide.",
+      },
+      {
+        name: "GitHub",
+        role: "Centralise notre code source et structure efficacement la collaboration et le suivi de nos développements.",
       },
     ],
   },
@@ -357,9 +289,11 @@ export const TechStack = () => {
                     <p className="text-slate-700 dark:text-gray-300 text-sm leading-relaxed mt-1">
                       {item.role}
                     </p>
-                    <p className="font-mono text-xs text-slate-500 dark:text-gray-500 leading-relaxed mt-2 pl-3 border-l border-slate-300/60 dark:border-white/[0.07]">
-                      {item.meta}
-                    </p>
+                    {item.meta && (
+                      <p className="font-mono text-xs text-slate-500 dark:text-gray-500 leading-relaxed mt-2 pl-3 border-l border-slate-300/60 dark:border-white/[0.07]">
+                        {item.meta}
+                      </p>
+                    )}
                   </div>
                 </div>
               </motion.div>
