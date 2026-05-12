@@ -10,10 +10,10 @@ import { Map } from "react-map-gl/maplibre";
 import { DeckGL } from "@deck.gl/react";
 import { ArcLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { FlyToInterpolator } from "@deck.gl/core";
-import { useStreamStore } from "../../store/streamStore";
-import { useTheme } from "../../contexts/ThemeContext";
-import type { GeoEvent } from "../../types/GeoEvent";
-import type { Severity } from "../../types/Alert";
+import { useStreamStore } from "../../../store/streamStore";
+import { useTheme } from "../../../contexts/ThemeContext";
+import type { GeoEvent } from "../../../types/GeoEvent";
+import type { Severity } from "../../../types/Alert";
 
 export interface GeoMapHandle {
   flyTo: (lon: number, lat: number, zoom?: number) => void;
