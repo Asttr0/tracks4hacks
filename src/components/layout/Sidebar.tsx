@@ -33,8 +33,8 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard/coverage", label: "Coverage", icon: Gauge },
 ];
 
-export const RAIL_WIDTH = 64;
-export const DRAWER_WIDTH = 280;
+export const LARGEUR_REDUITE = 64;
+export const LARGEUR_OUVERTE = 280;
 
 interface SidebarProps {
   open: boolean;
@@ -94,7 +94,7 @@ export const Sidebar = ({ open, onToggle }: SidebarProps) => {
   return (
     <motion.aside
       initial={false}
-      animate={{ width: open ? DRAWER_WIDTH : RAIL_WIDTH }}
+      animate={{ width: open ? LARGEUR_OUVERTE : LARGEUR_REDUITE }}
       transition={{ duration: 0.42, ease: EASE_SOFT }}
       className={`fixed top-0 left-0 h-full z-50
         backdrop-blur-xl border-r overflow-visible

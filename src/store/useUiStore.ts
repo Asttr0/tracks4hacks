@@ -13,6 +13,8 @@ type UiState = {
   setView: (v: ViewId) => void
   paletteOpen: boolean
   setPalette: (b: boolean) => void
+  openPalette: () => void
+  closePalette: () => void
   attackLog: AttackEvent[]
   setAttackLog: (arr: AttackEvent[]) => void
   pushAttack: (a: AttackEvent) => void
@@ -34,6 +36,8 @@ export const useUiStore = create<UiState>((set) => ({
   setView: (v) => set({ activeView: v }),
   paletteOpen: false,
   setPalette: (b) => set({ paletteOpen: b }),
+  openPalette: () => set({ paletteOpen: true }),
+  closePalette: () => set({ paletteOpen: false }),
   attackLog: [],
   setAttackLog: (arr) => set({ attackLog: arr }),
   pushAttack: (a) => set((s) => ({ attackLog: [a, ...s.attackLog] })),
