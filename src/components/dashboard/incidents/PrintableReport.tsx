@@ -1,5 +1,5 @@
 import type { CoverageKpi, DetectedAttack, MissedAttack } from "../../../types/coverage";
-import { TOOL_COLORS, SEV_TEXT_LIGHT, SEVERITY_FR, delayColor, groupByTool } from "./utils";
+import { TOOL_COLORS, SEV_TEXT_LIGHT, SEVERITY_FR, delayColor, groupByTool } from "../coverage/utils";
 
 export interface PrintableReportProps {
   kpi: CoverageKpi;
@@ -83,9 +83,7 @@ export const PrintableReport = ({ kpi, detected, missed, noRuleCount, timeoutCou
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0" }}>
                   <div style={{ padding: "8px 10px", borderRight: "1px solid #e2e8f0", background: "#fef2f211" }}>
-                    <p style={{ margin: 0, fontSize: "8px", fontWeight: 700, color: "#dc2626", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "5px" }}>
-                      ▸ Red Team — Attaque
-                    </p>
+                    <p style={{ margin: 0, fontSize: "8px", fontWeight: 700, color: "#dc2626", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "5px" }}>▸ Red Team — Attaque</p>
                     <table style={{ width: "100%", fontSize: "8.5px", borderCollapse: "collapse" }}>
                       <tbody>
                         <tr><td style={{ padding: "1px 0", color: "#64748b", width: "65px" }}>Technique :</td><td style={{ padding: "1px 0" }}><strong>{d.technique}</strong> — {d.techniqueName}</td></tr>
@@ -100,9 +98,7 @@ export const PrintableReport = ({ kpi, detected, missed, noRuleCount, timeoutCou
                     </div>
                   </div>
                   <div style={{ padding: "8px 10px", background: "#eff6ff11" }}>
-                    <p style={{ margin: 0, fontSize: "8px", fontWeight: 700, color: "#2563eb", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "5px" }}>
-                      ▸ Wazuh — Alerte
-                    </p>
+                    <p style={{ margin: 0, fontSize: "8px", fontWeight: 700, color: "#2563eb", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "5px" }}>▸ Wazuh — Alerte</p>
                     <table style={{ width: "100%", fontSize: "8.5px", borderCollapse: "collapse" }}>
                       <tbody>
                         <tr><td style={{ padding: "1px 0", color: "#64748b", width: "70px" }}>Horodatage :</td><td style={{ padding: "1px 0", fontFamily: "'Courier New', monospace" }}>{d.alert.time}</td></tr>

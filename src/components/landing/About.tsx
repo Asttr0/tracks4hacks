@@ -45,12 +45,12 @@ export const About = () => (
           transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
           className="font-cinematic text-3xl md:text-5xl uppercase leading-[1.05] text-slate-900 dark:text-white mb-6"
         >
-          Les équipes travaillent{" "}
+          Les équipes sont totalement{" "}
           <span
             className="bg-clip-text text-transparent"
             style={{ backgroundImage: "linear-gradient(90deg,#ef4444,#dc2626 50%,#7f1d1d)" }}
           >
-            en silos.
+            déconnectées.
           </span>
         </motion.h2>
 

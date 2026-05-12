@@ -62,7 +62,7 @@ export const Features = () => (
     <div className="max-w-7xl mx-auto">
       <SectionHeader
         eyebrow="Capacités Système"
-        title="Six vues. Une seule histoire."
+        title="Cinq vues. Une seule histoire."
         description="Chaque module répond à une question opérationnelle précise."
         align="center"
       />
