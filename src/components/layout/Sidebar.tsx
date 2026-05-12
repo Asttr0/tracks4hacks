@@ -5,7 +5,6 @@ import {
   Globe2,
   GitMerge,
   Grid3x3,
-  Play,
   ShieldAlert,
   Gauge,
   ChevronRight,
@@ -28,7 +27,6 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard/map", label: "GeoIP Map", icon: Globe2 },
   { to: "/dashboard/timeline", label: "Timeline", icon: GitMerge },
   { to: "/dashboard/mitre", label: "MITRE ATT&CK", icon: Grid3x3 },
-  { to: "/dashboard/replay", label: "Attack Replay", icon: Play },
   { to: "/dashboard/incidents", label: "Incidents", icon: ShieldAlert },
   { to: "/dashboard/coverage", label: "Coverage", icon: Gauge },
 ];

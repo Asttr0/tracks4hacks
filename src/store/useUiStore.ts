@@ -4,7 +4,7 @@ import { DEMO_ATTACKS } from '@/data/demo-attacks'
 import { DEMO_ALERTS } from '@/data/demo-alerts'
 import { useLogStore } from '@/store/useLogStore'
 
-export type ViewId = 'timeline' | 'mitre' | 'coverage' | 'geo' | 'replay' | 'alerts'
+export type ViewId = 'timeline' | 'mitre' | 'coverage' | 'geo' | 'alerts'
 
 type UiState = {
   demoMode: boolean

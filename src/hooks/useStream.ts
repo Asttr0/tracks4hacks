@@ -1,9 +1,13 @@
 import { useEffect } from "react";
 import { useStreamStore } from "../store/streamStore";
 import { useUiStore } from "../store/useUiStore";
+import { useLogStore } from "../store/useLogStore";
 import { sampleAlerts } from "../data/sampleAlerts";
+import { DEMO_ALERTS } from "../data/demo-alerts";
+import { DEMO_ATTACKS } from "../data/demo-attacks";
 import type { Alert, Severity } from "../types/Alert";
 import type { GeoEvent } from "../types/GeoEvent";
+import type { WazuhAlert } from "../types/wazuh";
 
 function levelToSeverity(level: number): Severity {
   if (level >= 15) return "critical";
@@ -77,6 +81,19 @@ async function resolveGeoIps(
   }
 }
 
+/**
+ * Build a synthetic WazuhAlert for the demo drip. Recycles a random row from
+ * DEMO_ALERTS, restamps it now, and re-IDs it so it lands as a fresh hit.
+ */
+const synthesizeDripAlert = (): WazuhAlert => {
+  const seed = DEMO_ALERTS[Math.floor(Math.random() * DEMO_ALERTS.length)]!;
+  return {
+    ...seed,
+    id: `drip-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    timestamp: new Date().toISOString(),
+  };
+};
+
 export const useStream = () => {
   const status = useStreamStore((s) => s.status);
   const setStatus = useStreamStore((s) => s.setStatus);
@@ -90,11 +107,31 @@ export const useStream = () => {
     clear();
     resolvedIps.clear();
 
+    const log = useLogStore.getState();
+    const ui = useUiStore.getState();
+
     if (demoMode) {
+      // Seed both pipelines: streamStore (Map/Overview) + useLogStore (Timeline/MITRE).
       setStatus("open");
       sampleAlerts.forEach(pushAlert);
       resolveGeoIps(sampleAlerts, pushGeoEvent);
-      return;
+
+      // Shift demo timestamps so they read as "happened over the last hour".
+      const baseShift = Date.now() - 30 * 60 * 1000;
+      const shiftedAlerts = DEMO_ALERTS.map((a, i) => ({
+        ...a,
+        timestamp: new Date(
+          baseShift + i * (30 * 60 * 1000) / Math.max(DEMO_ALERTS.length, 1),
+        ).toISOString(),
+      }));
+      log.setAlerts(shiftedAlerts);
+      ui.setAttackLog(DEMO_ATTACKS);
+
+      // Live drip: a fresh alert every 4-7s so cells pulse and charts move.
+      const drip = setInterval(() => {
+        useLogStore.getState().pushAlert(synthesizeDripAlert());
+      }, 4000 + Math.random() * 3000);
+      return () => clearInterval(drip);
     }
 
     setStatus("connecting");
@@ -106,11 +143,14 @@ export const useStream = () => {
       es.addEventListener("alerts", (ev) => {
         try {
           const items = JSON.parse((ev as MessageEvent).data);
-          const normalized = (Array.isArray(items) ? items : [items]).map(
-            normalizeAlert
-          );
+          const arr = Array.isArray(items) ? items : [items];
+          // streamStore (Alert) for Map/Overview
+          const normalized = arr.map(normalizeAlert);
           normalized.forEach(pushAlert);
           resolveGeoIps(normalized, pushGeoEvent);
+          // useLogStore (WazuhAlert) for Timeline/MITRE — payload is already
+          // wazuh-shaped from the BFF, so we feed it through directly.
+          useLogStore.getState().mergeAlerts(arr as WazuhAlert[]);
         } catch {
           /* ignore malformed */
         }

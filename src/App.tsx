@@ -12,7 +12,6 @@ const Overview = lazy(() => import("./pages/dashboard/Overview"));
 const Map = lazy(() => import("./pages/dashboard/Map"));
 const Timeline = lazy(() => import("./pages/dashboard/Timeline"));
 const Mitre = lazy(() => import("./pages/dashboard/Mitre"));
-const Replay = lazy(() => import("./pages/dashboard/Replay"));
 const Incidents = lazy(() => import("./pages/dashboard/Incidents"));
 const IncidentDetail = lazy(() => import("./pages/dashboard/IncidentDetail"));
 const Coverage = lazy(() => import("./pages/dashboard/Coverage"));
@@ -38,7 +37,6 @@ export default function App() {
             <Route path="map" element={<Map />} />
             <Route path="timeline" element={<Timeline />} />
             <Route path="mitre" element={<Mitre />} />
-            <Route path="replay" element={<Replay />} />
             <Route path="incidents" element={<Incidents />} />
             <Route path="incidents/:id" element={<IncidentDetail />} />
             <Route path="coverage" element={<Coverage />} />
