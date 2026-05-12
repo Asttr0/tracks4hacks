@@ -8,7 +8,6 @@ import {
   Globe2,
   GitMerge,
   Grid3x3,
-  Play,
   ShieldAlert,
   Gauge,
   Sun,
@@ -50,7 +49,6 @@ export const CommandPalette = ({ open, onClose }: CommandPaletteProps) => {
       { id: "map",       label: "GeoIP Map",          description: "Carte des sources IP",       icon: Globe2,           group: "Pages",   perform: () => { navigate("/dashboard/map"); onClose(); } },
       { id: "timeline",  label: "Timeline",           description: "Corrélation chronologique",  icon: GitMerge,         group: "Pages",   perform: () => { navigate("/dashboard/timeline"); onClose(); } },
       { id: "mitre",     label: "MITRE ATT&CK",       description: "Heatmap des techniques",     icon: Grid3x3,          group: "Pages",   perform: () => { navigate("/dashboard/mitre"); onClose(); } },
-      { id: "replay",    label: "Attack Replay",      description: "Rejouer une campagne Kali",  icon: Play,             group: "Pages",   perform: () => { navigate("/dashboard/replay"); onClose(); } },
       { id: "incidents", label: "Incidents",          description: "Liste des incidents SOC",    icon: ShieldAlert,      group: "Pages",   perform: () => { navigate("/dashboard/incidents"); onClose(); } },
       { id: "coverage",  label: "Coverage Scoreboard",description: "Couverture de détection",    icon: Gauge,            group: "Pages",   perform: () => { navigate("/dashboard/coverage"); onClose(); } },
       {

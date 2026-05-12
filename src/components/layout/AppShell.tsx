@@ -3,8 +3,13 @@ import { Outlet } from "react-router-dom";
 import { TopBar } from "./TopBar";
 import { Sidebar, RAIL_WIDTH, DRAWER_WIDTH } from "./Sidebar";
 import { CommandPalette } from "../common/CommandPalette";
+import { useStream } from "../../hooks/useStream";
 
 export default function AppShell() {
+  // Single live/demo subscription for the whole dashboard. Pages just read
+  // from the stores — no per-page stream wiring.
+  useStream();
+
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const offset = open ? DRAWER_WIDTH : RAIL_WIDTH;

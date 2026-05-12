@@ -10,7 +10,6 @@ const PAGE_LABELS: Record<string, string> = {
   "/dashboard/map":       "GeoIP Map",
   "/dashboard/timeline":  "Timeline",
   "/dashboard/mitre":     "MITRE ATT&CK",
-  "/dashboard/replay":    "Attack Replay",
   "/dashboard/incidents": "Incidents",
   "/dashboard/coverage":  "Coverage Scoreboard",
 };
