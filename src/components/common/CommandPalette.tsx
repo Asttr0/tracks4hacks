@@ -19,6 +19,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useUiStore } from "../../store/useUiStore";
 
 type Group = "Pages" | "Actions";
 
@@ -31,14 +32,11 @@ interface CommandItem {
   perform: () => void;
 }
 
-interface CommandPaletteProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-export const CommandPalette = ({ open, onClose }: CommandPaletteProps) => {
+export const CommandPalette = () => {
   const navigate = useNavigate();
   const { theme, toggle: toggleTheme } = useTheme();
+  const open = useUiStore((s) => s.paletteOpen);
+  const onClose = useUiStore((s) => s.closePalette);
   const [query, setQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
