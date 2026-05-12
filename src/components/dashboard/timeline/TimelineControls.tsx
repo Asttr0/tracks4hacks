@@ -1,4 +1,4 @@
-import { Pause, Play, RotateCcw, Pause as AutoPauseIcon, Trash2 } from 'lucide-react'
+import { Pause, Play, RotateCcw, Trash2 } from 'lucide-react'
 import { useUiStore } from '@/store/useUiStore'
 import { useLogStore } from '@/store/useLogStore'
 import type { TimelineModel } from '@/lib/timeline'
@@ -94,7 +94,7 @@ export const TimelineControls = ({ state }: Props) => {
             : 'border-white/10 bg-white/[0.02] text-gray-500 hover:border-white/25 hover:text-white'
         }`}
       >
-        <AutoPauseIcon size={10} />
+        <Pause size={10} />
         Pause sur manqués
       </button>
 
