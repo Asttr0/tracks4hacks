@@ -7,7 +7,6 @@ import { StatusDot } from "../../components/ui/StatusDot";
 import { Badge } from "../../components/ui/Badge";
 import { GeoMap, type GeoMapHandle } from "../../components/views/GeoMap";
 import { useStreamStore } from "../../store/streamStore";
-import { useStream } from "../../hooks/useStream";
 import type { Severity } from "../../types/Alert";
 
 const SEVERITY_HEX: Record<Severity, string> = {
@@ -38,7 +37,7 @@ interface KpiProps {
 }
 
 const Kpi = ({ label, value, icon: Icon, accent }: KpiProps) => (
-  <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 dark:border-soc-border dark:bg-soc-panel">
+  <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
     <NeonEdge color={accent} intensity="bright" />
     <div
       aria-hidden
@@ -54,7 +53,7 @@ const Kpi = ({ label, value, icon: Icon, accent }: KpiProps) => (
 );
 
 export default function Map() {
-  const { status } = useStream();
+  const status = useStreamStore((s) => s.status);
   const geoEvents = useStreamStore((s) => s.geoEvents);
   const mapRef = useRef<GeoMapHandle>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);

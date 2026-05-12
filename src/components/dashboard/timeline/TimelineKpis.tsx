@@ -91,7 +91,7 @@ const RingCard = ({ label, value, sub, ratio, tint }: {
   const dash = C * Math.max(0, Math.min(1, ratio))
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-soc-border bg-soc-panel p-4">
+    <div className="relative overflow-hidden rounded-lg border border-white/[0.06] bg-black/20 p-4 backdrop-blur-sm">
       <NeonEdge color={tint} intensity="bright" />
       <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-green-400">{label}</p>
       <div className="mt-3 flex items-center gap-4">
@@ -126,7 +126,7 @@ interface StatCardProps {
 }
 
 const StatCard = ({ label, value, sub, icon: Icon, tint, toggle }: StatCardProps) => (
-  <div className="relative overflow-hidden rounded-lg border border-soc-border bg-soc-panel p-4">
+  <div className="relative overflow-hidden rounded-lg border border-white/[0.06] bg-black/20 p-4 backdrop-blur-sm">
     <NeonEdge color={tint} intensity="bright" />
     <div className="flex items-start justify-between">
       <div>

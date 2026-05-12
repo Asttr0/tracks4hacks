@@ -12,7 +12,6 @@ import { StatusDot } from "../../components/ui/StatusDot";
 import { Badge } from "../../components/ui/Badge";
 import { NeonEdge } from "../../components/ui/NeonEdge";
 import { useStreamStore } from "../../store/streamStore";
-import { useStream } from "../../hooks/useStream";
 import type { Alert, Severity } from "../../types/Alert";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -31,7 +30,7 @@ const SEVERITY_RANK: Record<Severity, number> = {
 };
 
 export default function Overview() {
-  const { status } = useStream();
+  const status = useStreamStore((s) => s.status);
   const alerts = useStreamStore((s) => s.alerts);
   const geoEvents = useStreamStore((s) => s.geoEvents);
 
@@ -240,7 +239,7 @@ const KpiCard = ({ label, value, icon: Icon, edge, sub, children }: {
   sub?: string;
   children?: React.ReactNode;
 }) => (
-  <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 dark:border-soc-border dark:bg-soc-panel">
+  <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
     <NeonEdge color={edge} intensity="bright" />
     <div className="flex items-start justify-between">
       <p className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: edge }}>
@@ -691,7 +690,7 @@ const QuickLink = ({ to, icon: Icon, label, sub, tint }: {
 }) => (
   <Link
     to={to}
-    className="group relative flex items-center gap-3 overflow-hidden rounded-lg border border-slate-200 bg-white/60 p-3.5 transition-all hover:border-slate-300 hover:bg-white dark:border-soc-border dark:bg-soc-panel/80 dark:hover:border-white/20"
+    className="group relative flex items-center gap-3 overflow-hidden rounded-lg border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:border-slate-300 dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm dark:hover:border-white/15"
   >
     <NeonEdge color={tint} intensity="soft" />
     <div

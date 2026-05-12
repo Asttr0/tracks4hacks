@@ -27,7 +27,7 @@ export const TimelineControls = ({ state }: Props) => {
   const onLive = () => { state.setPlayhead(null); state.setPlaying(false) }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-md border border-soc-border bg-black/30 px-3 py-2">
+    <div className="flex flex-wrap items-center gap-3 rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 backdrop-blur-sm">
       <button
         onClick={playing ? onPause : onPlayStory}
         className={`group inline-flex items-center gap-2 rounded-md border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.25em] transition-colors ${

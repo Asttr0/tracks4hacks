@@ -4,9 +4,11 @@ import { DEMO_ATTACKS } from '@/data/demo-attacks'
 import { DEMO_ALERTS } from '@/data/demo-alerts'
 import { useLogStore } from '@/store/useLogStore'
 
-export type ViewId = 'timeline' | 'mitre' | 'coverage' | 'geo' | 'replay' | 'alerts'
+export type ViewId = 'timeline' | 'mitre' | 'coverage' | 'geo' | 'alerts'
 
 type UiState = {
+  sidebarOpen: boolean
+  toggleSidebar: () => void
   demoMode: boolean
   toggleDemo: () => void
   activeView: ViewId
@@ -30,6 +32,8 @@ type UiState = {
 }
 
 export const useUiStore = create<UiState>((set) => ({
+  sidebarOpen: false,
+  toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   demoMode: false,
   toggleDemo: () => set((s) => ({ demoMode: !s.demoMode })),
   activeView: 'timeline',

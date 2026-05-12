@@ -6,21 +6,20 @@ import { ThemeToggle } from "../landing/ThemeToggle";
 import { useUiStore } from "../../store/useUiStore";
 
 export const TopBar = () => {
-  const [time, setTime] = useState(() => new Date()); // heure actuelle
-  const location = useLocation(); // url courant
+  const [time, setTime] = useState(() => new Date());
+  const location = useLocation();
   const demoMode = useUiStore((s) => s.demoMode);
   const toggleDemo = useUiStore((s) => s.toggleDemo);
   const openPalette = useUiStore((s) => s.openPalette);
 
   let pageLabel: string;
-
-  if (location.pathname === "/dashboard")           pageLabel = "Vue d'ensemble";
+  if      (location.pathname === "/dashboard")           pageLabel = "Vue d'ensemble";
   else if (location.pathname === "/dashboard/map")       pageLabel = "GeoIP Map";
   else if (location.pathname === "/dashboard/timeline")  pageLabel = "Timeline";
   else if (location.pathname === "/dashboard/mitre")     pageLabel = "MITRE ATT&CK";
-  else if (location.pathname === "/dashboard/replay")    pageLabel = "Attack Replay";
   else if (location.pathname === "/dashboard/incidents") pageLabel = "Incidents";
   else if (location.pathname === "/dashboard/coverage")  pageLabel = "Coverage Scoreboard";
+  else if (location.pathname === "/dashboard/replay")    pageLabel = "Attack Replay";
   else                                                   pageLabel = "SOC Console";
   
   //horloge qui se met à jour chaque seconde
