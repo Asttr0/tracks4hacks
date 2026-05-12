@@ -24,13 +24,7 @@ export const ChartByTime = ({ buckets, timeframe }: Props) => {
   const n = buckets.length
   const stride = Math.ceil(n / 8)
 
-  const peakVal = max
-  const lastActiveIdx = (() => {
-    for (let i = buckets.length - 1; i >= 0; i--) {
-      if ((buckets[i]?.count ?? 0) > 0) return i
-    }
-    return -1
-  })()
+  const lastActiveIdx = buckets.reduce((last, b, i) => b.count > 0 ? i : last, -1)
 
   return (
     <div className="flex h-full flex-col">
@@ -80,7 +74,7 @@ export const ChartByTime = ({ buckets, timeframe }: Props) => {
             {buckets.map((b, i) => {
               const hot = b.count > 0
               const heightPct = max > 0 ? (b.count / max) * 100 : 0
-              const isPeak = hot && b.count === peakVal
+              const isPeak = hot && b.count === max
               const isLast = i === lastActiveIdx
               return (
                 <div

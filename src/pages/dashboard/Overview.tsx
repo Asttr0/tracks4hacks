@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -34,9 +34,8 @@ export default function Overview() {
   const alerts = useStreamStore((s) => s.alerts);
   const geoEvents = useStreamStore((s) => s.geoEvents);
 
-  const cutoff24h = Date.now() - DAY_MS;
-
   const stats = useMemo(() => {
+    const cutoff24h = Date.now() - DAY_MS;
     const recent = alerts.filter((a) => Date.parse(a.ts) >= cutoff24h);
     const techniques = new Set(recent.flatMap((a) => a.techniqueIds ?? [])).size;
     const srcIps = new Set(recent.map((a) => a.srcIp).filter(Boolean)).size;
@@ -73,7 +72,7 @@ export default function Overview() {
       topCountries,
       topCountriesMax,
     };
-  }, [alerts, geoEvents, cutoff24h]);
+  }, [alerts, geoEvents]);
 
   const streamTone = status === "open" ? "live" : status === "error" ? "offline" : "warn";
 
@@ -231,13 +230,12 @@ export default function Overview() {
 
 /* ─────────── KPI ─────────── */
 
-const KpiCard = ({ label, value, icon: Icon, edge, sub, children }: {
+const KpiCard = ({ label, value, icon: Icon, edge, sub }: {
   label: string;
   value: number | string;
   icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
   edge: string;
   sub?: string;
-  children?: React.ReactNode;
 }) => (
   <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm">
     <NeonEdge color={edge} intensity="bright" />
@@ -255,7 +253,6 @@ const KpiCard = ({ label, value, icon: Icon, edge, sub, children }: {
         {sub}
       </p>
     )}
-    {children && <div className="mt-3">{children}</div>}
   </div>
 );
 
@@ -265,7 +262,7 @@ const KpiCard = ({ label, value, icon: Icon, edge, sub, children }: {
 /* A continuous SVG line chart of "alerts per X seconds" over a sliding       */
 /* 5-minute window. Recomputes 6× / sec so the curve physically drifts left.  */
 
-const FLUX_WINDOW_MS = 5 * 60 * 1000;   // 5 min visible
+const FLUX_WINDOW_MS = 15 * 60 * 1000;  // 15 min visible
 const FLUX_BINS = 80;                    // 80 sample points
 const FLUX_BIN_MS = FLUX_WINDOW_MS / FLUX_BINS; // 3.75s per bin
 const FLUX_TICK_MS = 160;                // ~6 Hz redraw
@@ -430,7 +427,7 @@ const LiveFluxStream = ({ alerts }: { alerts: Alert[] }) => {
 
       {/* axis strap — sits BELOW the chart panel, never overlaps the area fill */}
       <div className="flex items-center justify-between border-t border-white/[0.04] bg-slate-100/40 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-slate-400 dark:bg-black/30 dark:text-gray-500">
-        <span>−5 min</span>
+        <span>−15 min</span>
         <span>flux temps réel</span>
         <span style={{ color: lineColor }} className="font-semibold">● live</span>
       </div>
@@ -471,151 +468,6 @@ const smoothPath = (pts: { x: number; y: number }[]): string => {
   const last = pts[pts.length - 1]!;
   d += ` L ${last.x.toFixed(2)} ${last.y.toFixed(2)}`;
   return d;
-};
-
-const ActivityHistogram = ({ buckets }: { buckets: { count: number; peak: Severity }[] }) => {
-  const max = Math.max(1, ...buckets.map((b) => b.count));
-
-  // detect bucket-count increases → trigger a brief flash on the affected bar
-  const prevCounts = useRef<number[]>(buckets.map((b) => b.count));
-  const [flashing, setFlashing] = useState<Set<number>>(new Set());
-  const [arrivals, setArrivals] = useState<{ id: number; bucket: number }[]>([]);
-  const arrivalIdRef = useRef(0);
-
-  useEffect(() => {
-    const prev = prevCounts.current;
-    const newFlash = new Set<number>();
-    const newArrivals: { id: number; bucket: number }[] = [];
-    buckets.forEach((b, i) => {
-      const before = prev[i] ?? 0;
-      if (b.count > before) {
-        newFlash.add(i);
-        // emit one "particle" per new alert (capped to keep it tasteful)
-        const delta = Math.min(3, b.count - before);
-        for (let k = 0; k < delta; k++) {
-          arrivalIdRef.current += 1;
-          newArrivals.push({ id: arrivalIdRef.current, bucket: i });
-        }
-      }
-    });
-    prevCounts.current = buckets.map((b) => b.count);
-
-    if (newFlash.size) {
-      setFlashing(newFlash);
-      const t = setTimeout(() => setFlashing(new Set()), 700);
-      return () => clearTimeout(t);
-    }
-    if (newArrivals.length) {
-      setArrivals((a) => [...a, ...newArrivals]);
-      const t = setTimeout(() => {
-        setArrivals((a) => a.filter((x) => !newArrivals.find((n) => n.id === x.id)));
-      }, 1100);
-      return () => clearTimeout(t);
-    }
-  }, [buckets]);
-
-  return (
-    <div className="relative overflow-hidden rounded-md border border-slate-200/60 bg-slate-50/60 p-2 dark:border-white/5 dark:bg-black/30">
-      {/* slow scanline sweeping right→left */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 w-[80px]"
-        initial={{ x: "100%" }}
-        animate={{ x: "-120%" }}
-        transition={{ duration: 6.5, ease: "linear", repeat: Infinity }}
-        style={{
-          background:
-            "linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.10) 45%, rgba(239,68,68,0.18) 50%, rgba(239,68,68,0.10) 55%, transparent 100%)",
-        }}
-      />
-
-      <div className="relative flex items-end gap-0.5" style={{ height: 56 }}>
-        {buckets.map((b, i) => {
-          const h = (b.count / max) * 52;
-          const isLast = i === buckets.length - 1;
-          const isFlashing = flashing.has(i);
-          const tint = b.count ? SEVERITY_HEX[b.peak] : "rgba(255,255,255,0.06)";
-
-          return (
-            <motion.div
-              key={i}
-              initial={false}
-              animate={{ height: Math.max(2, h) }}
-              transition={{ type: "spring", stiffness: 200, damping: 22, mass: 0.6 }}
-              className="relative flex-1 rounded-sm"
-              style={{
-                background: tint,
-                opacity: b.count ? 0.92 : 1,
-                boxShadow: b.count ? `0 0 6px ${tint}55` : undefined,
-              }}
-              title={b.count ? `${b.count} alerte${b.count > 1 ? "s" : ""}` : ""}
-            >
-              {/* perpetual breathe on the "maintenant" bar */}
-              {isLast && b.count > 0 && (
-                <motion.div
-                  aria-hidden
-                  className="absolute inset-0 rounded-sm"
-                  animate={{ opacity: [0, 0.55, 0] }}
-                  transition={{ duration: 1.7, repeat: Infinity, ease: "easeInOut" }}
-                  style={{ background: tint, boxShadow: `0 0 10px ${tint}` }}
-                />
-              )}
-              {/* flash on new arrival */}
-              <AnimatePresence>
-                {isFlashing && (
-                  <motion.div
-                    aria-hidden
-                    initial={{ opacity: 0.85, scaleY: 1.25 }}
-                    animate={{ opacity: 0, scaleY: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.65, ease: "easeOut" }}
-                    className="absolute inset-0 rounded-sm bg-white"
-                    style={{ transformOrigin: "bottom" }}
-                  />
-                )}
-              </AnimatePresence>
-            </motion.div>
-          );
-        })}
-
-        {/* "arrival" particles falling onto their bucket */}
-        <AnimatePresence>
-          {arrivals.map((p) => {
-            const left = `${(p.bucket / buckets.length) * 100 + 100 / buckets.length / 2}%`;
-            return (
-              <motion.span
-                key={p.id}
-                aria-hidden
-                initial={{ opacity: 0, y: -28, left }}
-                animate={{ opacity: [0, 1, 1, 0], y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.0, ease: "easeOut" }}
-                className="pointer-events-none absolute top-0 size-1.5 -translate-x-1/2 rounded-full"
-                style={{
-                  background: SEVERITY_HEX[buckets[p.bucket]?.peak ?? "info"],
-                  boxShadow: `0 0 8px ${SEVERITY_HEX[buckets[p.bucket]?.peak ?? "info"]}`,
-                }}
-              />
-            );
-          })}
-        </AnimatePresence>
-
-        {/* "now" tip indicator */}
-        <motion.span
-          aria-hidden
-          className="pointer-events-none absolute bottom-0 right-0.5 size-1.5 rounded-full"
-          animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.4, 1] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          style={{ background: "#ef4444", boxShadow: "0 0 8px #ef4444" }}
-        />
-      </div>
-
-      <div className="mt-1.5 flex justify-between font-mono text-[9px] uppercase tracking-[0.25em] text-slate-400 dark:text-gray-600">
-        <span>−24h</span>
-        <span className="text-red-500/80 dark:text-red-400/80">● maintenant</span>
-      </div>
-    </div>
-  );
 };
 
 const FeedRow = ({ alert }: { alert: Alert }) => {
