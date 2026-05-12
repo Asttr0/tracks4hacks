@@ -55,9 +55,6 @@ export const LandingFooter = () => (
 
     <div className="border-t border-slate-200 dark:border-white/5 py-4 px-6">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
-        <span className="font-mono text-[10px] text-slate-400 dark:text-gray-400 tracking-widest uppercase">
-          Educational / Non-Commercial
-        </span>
         <span className="font-mono text-[10px] text-slate-400 dark:text-gray-400">
           © 2026 Tracks4Hacks
         </span>

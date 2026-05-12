@@ -7,14 +7,12 @@ const AUTHORS = [
   {
     name: "Mohamed Taha Slimani",
     handle: "Asttr0",
-    role: "Red Team & Full Stack",
     github: "https://github.com/Asttr0",
     avatar: "https://github.com/Asttr0.png?size=300",
   },
   {
     name: "Ismail Garnaoui",
     handle: "ismailgr10",
-    role: "Blue Team & Integration",
     github: "https://github.com/ismailgr10",
     avatar: "https://github.com/ismailgr10.png?size=300",
   },
@@ -58,7 +56,6 @@ export const Authors = () => (
                 <h3 className="font-cinematic text-slate-900 dark:text-white text-xl tracking-wide leading-tight">
                   {a.name}
                 </h3>
-                <p className="font-mono text-xs text-slate-600 dark:text-gray-400 mt-1.5">● {a.role}</p>
                 <a
                   href={a.github}
                   target="_blank"
