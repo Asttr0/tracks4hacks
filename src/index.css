@@ -56,6 +56,73 @@ body {
   animation: neon-edge-glow 3.2s ease-in-out infinite;
 }
 
+/* MITRE matrix — fresh-hit pulse */
+@keyframes mitre-pulse-ring {
+  0%   { transform: scale(1);    opacity: 0.85; border-width: 2px; }
+  100% { transform: scale(1.45); opacity: 0;    border-width: 0;   }
+}
+@keyframes mitre-pulse-flash {
+  0%   { opacity: 0.85; }
+  100% { opacity: 0;    }
+}
+.mitre-pulse-ring {
+  border-style: solid;
+  border-width: 2px;
+  animation: mitre-pulse-ring 1.4s ease-out forwards;
+}
+.mitre-pulse-flash {
+  animation: mitre-pulse-flash 1.0s ease-out forwards;
+}
+
+/* MITRE — subtle dark-red pulse for the hottest cells (inset only, no halo) */
+@keyframes mitre-dark-pulse {
+  0%, 100% { box-shadow: inset 0 0 14px rgba(91, 11, 16, 0.55); }
+  50%      { box-shadow: inset 0 0 26px rgba(40,  5,  8, 0.92); }
+}
+.mitre-dark-pulse {
+  animation: mitre-dark-pulse 2.4s ease-in-out infinite;
+}
+
+/* MITRE — red glow shell for the count totals below tactic headers */
+@keyframes mitre-total-glow {
+  0%, 100% { text-shadow: 0 0 6px rgba(196,59,59,0.55), 0 0 14px rgba(196,59,59,0.25); }
+  50%      { text-shadow: 0 0 10px rgba(239,68,68,0.85), 0 0 22px rgba(239,68,68,0.4);  }
+}
+.mitre-total-glow {
+  color: #ff6b6b;
+  animation: mitre-total-glow 3s ease-in-out infinite;
+}
+
+/* MITRE — soft white text glow for the page-level KPI numbers */
+.mitre-kpi-glow {
+  text-shadow: 0 0 8px rgba(255,255,255,0.45), 0 0 18px rgba(255,255,255,0.18);
+}
+
+/* MITRE — lollipop head loop (live indicator). Two stacked rings expand and fade. */
+@keyframes mitre-dot-radar {
+  0%   { transform: scale(0.8); opacity: 0.85; }
+  80%  { transform: scale(2.2); opacity: 0;   }
+  100% { transform: scale(2.2); opacity: 0;   }
+}
+.mitre-dot-radar {
+  animation: mitre-dot-radar 1.8s ease-out infinite;
+  transform-origin: center;
+}
+
+/* MITRE — active timeframe pill, soft white breathing halo */
+@keyframes mitre-pill-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.0),  0 0 6px  rgba(255,255,255,0.18); }
+  50%      { box-shadow: 0 0 16px 1px rgba(255,255,255,0.55), 0 0 28px rgba(255,255,255,0.22); }
+}
+.mitre-pill-pulse {
+  animation: mitre-pill-pulse 2.4s ease-in-out infinite;
+}
+
+/* MITRE attack-path overlay — moving dashes */
+@keyframes mitrePathDash {
+  to { stroke-dashoffset: -100; }
+}
+
 /* respect reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

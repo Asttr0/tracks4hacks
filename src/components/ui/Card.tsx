@@ -21,7 +21,7 @@ export const Card = ({
 }: CardProps) => (
   <Tag
     className={clsx(
-      "relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 lg:p-6 dark:border-soc-border dark:bg-soc-panel",
+      "relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:p-6 dark:border-white/[0.06] dark:bg-black/20 dark:shadow-none dark:backdrop-blur-sm",
       className,
     )}
     {...rest}

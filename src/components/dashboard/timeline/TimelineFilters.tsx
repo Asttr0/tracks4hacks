@@ -26,7 +26,7 @@ export const TimelineFilters = ({ model, state }: Props) => {
     state.missedOnly
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-md border border-soc-border bg-black/30 p-2.5">
+    <div className="flex flex-wrap items-center gap-2 rounded-md border border-white/[0.06] bg-black/20 p-2.5 backdrop-blur-sm">
       {/* severity chips */}
       <div className="flex items-center gap-1">
         <span className="mr-1 font-mono text-[9px] uppercase tracking-[0.25em] text-gray-500">sévérité</span>

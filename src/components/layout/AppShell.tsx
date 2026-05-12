@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { TopBar } from "./TopBar";
 import { Sidebar, LARGEUR_REDUITE, LARGEUR_OUVERTE } from "./Sidebar";
 import { CommandPalette } from "../common/CommandPalette";
 import { useUiStore } from "../../store/useUiStore";
+import { useStream } from "../../hooks/useStream";
 
 export default function AppShell() {
-  const [open, setOpen] = useState(false); // pour sidebar
-  const margeGauche = open ? LARGEUR_OUVERTE : LARGEUR_REDUITE;
+  useStream();
+
+  const sidebarOpen = useUiStore((s) => s.sidebarOpen);
+  const margeGauche = sidebarOpen ? LARGEUR_OUVERTE : LARGEUR_REDUITE;
   const openPalette = useUiStore((s) => s.openPalette);
   const closePalette = useUiStore((s) => s.closePalette);
   const paletteOpen = useUiStore((s) => s.paletteOpen);
@@ -32,7 +35,7 @@ export default function AppShell() {
       className="min-h-screen text-slate-900 dark:text-white
         [background:radial-gradient(125%_125%_at_50%_10%,#f8fafc_40%,#c2a7a3_100%)]
         dark:[background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#c43b3b_100%)]">
-      <Sidebar open={open} onToggle={() => setOpen((v) => !v)} />
+      <Sidebar />
       <div
         style={{
           marginLeft: margeGauche,

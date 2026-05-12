@@ -72,7 +72,7 @@ export const TimelineView = () => {
       <StorySummary model={model} state={state} visible={replayFinished} />
 
       <div className="flex flex-col gap-4 lg:flex-row">
-        <section className="flex min-w-0 flex-1 flex-col gap-3 rounded-lg border border-soc-border bg-soc-panel p-3 lg:p-4">
+        <section className="flex min-w-0 flex-1 flex-col gap-3 rounded-lg border border-white/[0.06] bg-black/20 p-3 backdrop-blur-sm lg:p-4">
           <header className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-cinematic text-base text-white">
               Chronologie

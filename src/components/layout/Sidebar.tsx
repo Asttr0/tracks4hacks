@@ -5,7 +5,6 @@ import {
   Globe2,
   GitMerge,
   Grid3x3,
-  Play,
   ShieldAlert,
   Gauge,
   ChevronRight,
@@ -13,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useUiStore } from "../../store/useUiStore";
 
 const EASE_SOFT = [0.32, 0.72, 0, 1] as const;
 
@@ -28,7 +28,6 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard/map", label: "GeoIP Map", icon: Globe2 },
   { to: "/dashboard/timeline", label: "Timeline", icon: GitMerge },
   { to: "/dashboard/mitre", label: "MITRE ATT&CK", icon: Grid3x3 },
-  { to: "/dashboard/replay", label: "Attack Replay", icon: Play },
   { to: "/dashboard/incidents", label: "Incidents", icon: ShieldAlert },
   { to: "/dashboard/coverage", label: "Coverage", icon: Gauge },
 ];
@@ -36,12 +35,9 @@ const NAV_ITEMS: NavItem[] = [
 export const LARGEUR_REDUITE = 64;
 export const LARGEUR_OUVERTE = 280;
 
-interface SidebarProps {
-  open: boolean;
-  onToggle: () => void;
-}
-
-export const Sidebar = ({ open, onToggle }: SidebarProps) => {
+export const Sidebar = () => {
+  const open = useUiStore((s) => s.sidebarOpen);
+  const onToggle = useUiStore((s) => s.toggleSidebar);
   const { theme } = useTheme();
   const isLight = theme === "light";
 
