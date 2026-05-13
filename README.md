@@ -1,8 +1,5 @@
-<div align="center">
-  <img src="./public/logo.png" alt="Tracks4Hacks" width="700"/>
-</div>
+<img width="1824" height="232" alt="logo" src="https://github.com/user-attachments/assets/b52f3034-cc4a-46b3-9258-d6e0ec3ff64f" />
 
-<br/>
 
 > *Tracking every hacker's footprints — from the attacker's terminal to the defender's dashboard.*
 
