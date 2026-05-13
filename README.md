@@ -55,42 +55,44 @@ A real-time SOC dashboard that correlates Red Team offensive operations (Kali Li
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         GITHUB                                      │
-│   Repository (main) ──► GitHub Actions CI (tsc + vitest + build)   │
-│                                         │                           │
-│                                    CI/CD Deploy                     │
-└─────────────────────────────────────────┼───────────────────────────┘
-                                          │
-          ┌───────────────────────────────▼───────────────────────────┐
-          │                    AZURE VM — Debian 12                   │
-          │   Kali (local) ──► Suricata IDS ──► Wazuh Manager        │
-          │                        eve.json      SIEM + MITRE tags    │
-          │                                      OpenSearch Index     │
-          │                                      API REST :55000      │
-          └───────────────────────────────┬───────────────────────────┘
-                                          │ HTTPS + JWT
-          ┌───────────────────────────────▼───────────────────────────┐
-          │                  NETLIFY EDGE (BFF)                       │
-          │   /api/stream         SSE — pushes alerts every 5s        │
-          │   /api/wazuh-alerts   Paginated alert proxy               │
-          │   /api/wazuh-agents   Agent list                          │
-          │   /api/geoip          IP → coordinates resolver           │
-          │   /api/attack-replay  Scripted attack scenario trigger     │
-          │                                                           │
-          │   Credentials stay server-side — never reach the client   │
-          └───────────────────────────────┬───────────────────────────┘
-                                          │ SSE (persistent connection)
-          ┌───────────────────────────────▼───────────────────────────┐
-          │              REACT DASHBOARD (Netlify CDN)                │
-          │                                                           │
-          │   useStream → streamStore (Zustand)                       │
-          │                    │                                      │
-          │        ┌───────────┼───────────┬──────────┐              │
-          │        ▼           ▼           ▼          ▼              │
-          │   Overview      GeoMap     Timeline     MITRE             │
-          └───────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph GH["☁️ GITHUB"]
+        REPO["Repository (main)"] -->|"push / PR"| CI["GitHub Actions CI\ntsc · vitest · vite build"]
+    end
+
+    subgraph AZ["🖥️ AZURE VM — Debian 12"]
+        KALI["Kali Linux\n(attacker)"] -->|"network attacks"| SUR["Suricata IDS\neve.json"]
+        SUR -->|"raw events"| WAZ["Wazuh Manager\nSIEM + MITRE tags"]
+        WAZ --> IDX["OpenSearch Indexer\n:9443"]
+        WAZ --> API["Wazuh REST API\n:55000"]
+    end
+
+    subgraph BFF["⚡ NETLIFY EDGE — BFF"]
+        S1["/api/stream\nSSE · polls every 5 s"]
+        S2["/api/wazuh-alerts\nPaginated proxy"]
+        S3["/api/wazuh-agents\nAgent list"]
+        S4["/api/geoip\nIP → lat/lon"]
+        S5["/api/attack-replay\nScripted scenario trigger"]
+    end
+
+    subgraph DASH["🖥️ REACT DASHBOARD — Netlify CDN"]
+        HOOK["useStream hook"]
+        STORE["Zustand · streamStore\nuseUiStore · useLogStore"]
+        HOOK --> STORE
+        STORE --> OV["Overview"]
+        STORE --> GEO["GeoIP Map"]
+        STORE --> TL["Timeline"]
+        STORE --> MIT["MITRE Heatmap"]
+    end
+
+    CI -->|"CI/CD deploy"| BFF
+    CI -->|"CI/CD deploy"| DASH
+    IDX -->|"HTTPS + JWT"| S1
+    API -->|"HTTPS + JWT"| S2
+    API -->|"HTTPS + JWT"| S3
+    S1 -->|"SSE persistent connection"| HOOK
+    S4 & S5 --> STORE
 ```
 
 **Data flow in one sentence:** Wazuh tags every network event with a MITRE technique ID → the BFF polls the Wazuh Indexer every 5 s and streams results via SSE → Zustand distributes the data to all dashboard views simultaneously.
