@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./public/logo.svg" alt="Tracks4Hacks" width="700"/>
+  <img src="./public/logo.png" alt="Tracks4Hacks" width="700"/>
 </div>
 
 <br/>
