@@ -1,4 +1,8 @@
-# Tracks4Hacks — Purple Team Correlation Engine
+<div align="center">
+  <img src="./public/logo.svg" alt="Tracks4Hacks" width="520"/>
+</div>
+
+<br/>
 
 > *Tracking every hacker's footprints — from the attacker's terminal to the defender's dashboard.*
 
