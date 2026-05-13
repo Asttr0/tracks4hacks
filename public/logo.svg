@@ -15,7 +15,8 @@
   </defs>
 
   <text
-    x="10" y="74"
+    x="410" y="74"
+    text-anchor="middle"
     font-family="'Cinzel', serif"
     font-weight="900"
     font-size="72"
