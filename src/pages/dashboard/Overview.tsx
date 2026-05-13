@@ -7,6 +7,7 @@ import {
   ArrowUpRight, Radio,
 } from "lucide-react";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { FadeIn } from "../../components/ui/FadeIn";
 import { Card } from "../../components/ui/Card";
 import { StatusDot } from "../../components/ui/StatusDot";
 import { Badge } from "../../components/ui/Badge";
@@ -78,152 +79,160 @@ export default function Overview() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="État global"
-        title="Vue d'ensemble"
-        description="Posture défensive du SOC en un coup d'œil — flux, sévérités, techniques et géographie."
-        actions={
-          <div className="flex items-center gap-3">
-            <StatusDot tone={streamTone} label={status === "open" ? "Stream live" : status === "error" ? "Hors ligne" : "Connexion"} />
-          </div>
-        }
-      />
+      <FadeIn delay={0}>
+        <PageHeader
+          eyebrow="État global"
+          title="Vue d'ensemble"
+          description="Posture défensive du SOC en un coup d'œil — flux, sévérités, techniques et géographie."
+          actions={
+            <div className="flex items-center gap-3">
+              <StatusDot tone={streamTone} label={status === "open" ? "Stream live" : status === "error" ? "Hors ligne" : "Connexion"} />
+            </div>
+          }
+        />
+      </FadeIn>
 
       {/* Hero KPI strip */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          label="Alertes / 24h"
-          value={stats.total24h}
-          icon={Activity}
-          edge="#ef4444"
-          sub={stats.total24h ? "agrégat 24h" : "—"}
-        />
+      <FadeIn delay={0.1}>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <KpiCard
+            label="Alertes / 24h"
+            value={stats.total24h}
+            icon={Activity}
+            edge="#ef4444"
+            sub={stats.total24h ? "agrégat 24h" : "—"}
+          />
 
-        <KpiCard
-          label="Sévérité élevée"
-          value={stats.critical}
-          icon={ShieldAlert}
-          edge="#fb923c"
-          sub={stats.total24h ? `${Math.round((stats.critical / stats.total24h) * 100)}% du flux` : "—"}
-        />
+          <KpiCard
+            label="Sévérité élevée"
+            value={stats.critical}
+            icon={ShieldAlert}
+            edge="#fb923c"
+            sub={stats.total24h ? `${Math.round((stats.critical / stats.total24h) * 100)}% du flux` : "—"}
+          />
 
-        <KpiCard
-          label="Sources uniques"
-          value={stats.srcIps}
-          icon={Globe2}
-          edge="#3b82f6"
-          sub={`${stats.topCountries.length} pays`}
-        />
+          <KpiCard
+            label="Sources uniques"
+            value={stats.srcIps}
+            icon={Globe2}
+            edge="#3b82f6"
+            sub={`${stats.topCountries.length} pays`}
+          />
 
-        <KpiCard
-          label="Techniques MITRE"
-          value={stats.techniques}
-          icon={Grid3x3}
-          edge="#a855f7"
-          sub="observées sur 24h"
-        />
-      </div>
+          <KpiCard
+            label="Techniques MITRE"
+            value={stats.techniques}
+            icon={Grid3x3}
+            edge="#a855f7"
+            sub="observées sur 24h"
+          />
+        </div>
+      </FadeIn>
 
       {/* Main grid */}
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {/* Activity feed (left, 2 cols) */}
-        <Card className="lg:col-span-2 min-h-[420px]" accent="#ef4444">
-          <header className="mb-4 flex items-center justify-between">
-            <div>
-              <h3 className="font-cinematic text-sm uppercase tracking-wide text-slate-900 dark:text-white">
-                Flux d'alertes
+      <FadeIn delay={0.2}>
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {/* Activity feed (left, 2 cols) */}
+          <Card className="lg:col-span-2 min-h-[420px]" accent="#ef4444">
+            <header className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-cinematic text-sm uppercase tracking-wide text-slate-900 dark:text-white">
+                  Flux d'alertes
+                </h3>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 dark:text-gray-500">
+                  {stats.total24h} sur 24h
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Radio size={11} className="text-red-500 dark:text-red-400 animate-pulse" />
+                <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-red-500 dark:text-red-400">
+                  {status === "open" ? "Live" : status}
+                </span>
+              </div>
+            </header>
+
+            <LiveFluxStream alerts={alerts} />
+
+            {alerts.length === 0 ? (
+              <EmptyFeed status={status} />
+            ) : (
+              <ul className="mt-4 space-y-1.5 overflow-y-auto" style={{ maxHeight: 280 }}>
+                {alerts.slice(0, 50).map((a) => <FeedRow key={a.id} alert={a} />)}
+              </ul>
+            )}
+          </Card>
+
+          {/* Posture (right) */}
+          <div className="flex flex-col gap-4">
+            <Card accent="#22c55e" className="min-h-0">
+              <h3 className="mb-3 font-cinematic text-sm uppercase tracking-wide text-slate-900 dark:text-white">
+                Sources
               </h3>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 dark:text-gray-500">
-                {stats.total24h} sur 24h
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Radio size={11} className="text-red-500 dark:text-red-400 animate-pulse" />
-              <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-red-500 dark:text-red-400">
-                {status === "open" ? "Live" : status}
-              </span>
-            </div>
-          </header>
-
-          <LiveFluxStream alerts={alerts} />
-
-          {alerts.length === 0 ? (
-            <EmptyFeed status={status} />
-          ) : (
-            <ul className="mt-4 space-y-1.5 overflow-y-auto" style={{ maxHeight: 280 }}>
-              {alerts.slice(0, 50).map((a) => <FeedRow key={a.id} alert={a} />)}
-            </ul>
-          )}
-        </Card>
-
-        {/* Posture (right) */}
-        <div className="flex flex-col gap-4">
-          <Card accent="#22c55e" className="min-h-0">
-            <h3 className="mb-3 font-cinematic text-sm uppercase tracking-wide text-slate-900 dark:text-white">
-              Sources
-            </h3>
-            <ul className="space-y-2 font-mono text-xs">
-              <SourceRow label="Wazuh" tone={status === "open" ? "online" : "warn"} value={status === "open" ? "Connecté" : "..."} />
-              <SourceRow label="Suricata" tone="online" value="Actif" />
-              <SourceRow label="BFF" tone={status === "open" ? "online" : "warn"} value={status === "open" ? "Live" : "..."} />
-              <SourceRow label="GeoIP" tone={geoEvents.length > 0 ? "online" : "offline"} value={`${geoEvents.length} cache`} />
-            </ul>
-          </Card>
-
-          <Card accent="#a855f7" className="min-h-0">
-            <h3 className="mb-3 font-cinematic text-sm uppercase tracking-wide text-slate-900 dark:text-white">
-              Top techniques
-            </h3>
-            {stats.topTech.length ? (
-              <ul className="space-y-1.5">
-                {stats.topTech.map(([id, n]) => (
-                  <BarRow
-                    key={id}
-                    label={id}
-                    count={n}
-                    max={stats.topTechMax}
-                    tint="#a855f7"
-                  />
-                ))}
+              <ul className="space-y-2 font-mono text-xs">
+                <SourceRow label="Wazuh" tone={status === "open" ? "online" : "warn"} value={status === "open" ? "Connecté" : "..."} />
+                <SourceRow label="Suricata" tone="online" value="Actif" />
+                <SourceRow label="BFF" tone={status === "open" ? "online" : "warn"} value={status === "open" ? "Live" : "..."} />
+                <SourceRow label="GeoIP" tone={geoEvents.length > 0 ? "online" : "offline"} value={`${geoEvents.length} cache`} />
               </ul>
-            ) : (
-              <p className="font-mono text-[11px] text-slate-500 dark:text-gray-500">
-                aucune technique observée
-              </p>
-            )}
-          </Card>
+            </Card>
 
-          <Card accent="#3b82f6" className="min-h-0">
-            <h3 className="mb-3 font-cinematic text-sm uppercase tracking-wide text-slate-900 dark:text-white">
-              Top pays sources
-            </h3>
-            {stats.topCountries.length ? (
-              <ul className="space-y-1.5">
-                {stats.topCountries.map(([country, n]) => (
-                  <BarRow
-                    key={country}
-                    label={country}
-                    count={n}
-                    max={stats.topCountriesMax}
-                    tint="#3b82f6"
-                  />
-                ))}
-              </ul>
-            ) : (
-              <p className="font-mono text-[11px] text-slate-500 dark:text-gray-500">
-                aucune origine résolue
-              </p>
-            )}
-          </Card>
+            <Card accent="#a855f7" className="min-h-0">
+              <h3 className="mb-3 font-cinematic text-sm uppercase tracking-wide text-slate-900 dark:text-white">
+                Top techniques
+              </h3>
+              {stats.topTech.length ? (
+                <ul className="space-y-1.5">
+                  {stats.topTech.map(([id, n]) => (
+                    <BarRow
+                      key={id}
+                      label={id}
+                      count={n}
+                      max={stats.topTechMax}
+                      tint="#a855f7"
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <p className="font-mono text-[11px] text-slate-500 dark:text-gray-500">
+                  aucune technique observée
+                </p>
+              )}
+            </Card>
+
+            <Card accent="#3b82f6" className="min-h-0">
+              <h3 className="mb-3 font-cinematic text-sm uppercase tracking-wide text-slate-900 dark:text-white">
+                Top pays sources
+              </h3>
+              {stats.topCountries.length ? (
+                <ul className="space-y-1.5">
+                  {stats.topCountries.map(([country, n]) => (
+                    <BarRow
+                      key={country}
+                      label={country}
+                      count={n}
+                      max={stats.topCountriesMax}
+                      tint="#3b82f6"
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <p className="font-mono text-[11px] text-slate-500 dark:text-gray-500">
+                  aucune origine résolue
+                </p>
+              )}
+            </Card>
+          </div>
         </div>
-      </div>
+      </FadeIn>
 
       {/* Quick links */}
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <QuickLink to="/dashboard/timeline" icon={GitMerge} label="Chronologie d'attaque" sub="rejouer l'incident" tint="#ef4444" />
-        <QuickLink to="/dashboard/map"      icon={MapPin}    label="Carte des sources"     sub="géographie des IPs" tint="#3b82f6" />
-        <QuickLink to="/dashboard/coverage" icon={Gauge}     label="Couverture MITRE"      sub="par tactique"       tint="#a855f7" />
-      </div>
+      <FadeIn delay={0.3}>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <QuickLink to="/dashboard/timeline" icon={GitMerge} label="Chronologie d'attaque" sub="rejouer l'incident" tint="#ef4444" />
+          <QuickLink to="/dashboard/map"      icon={MapPin}    label="Carte des sources"     sub="géographie des IPs" tint="#3b82f6" />
+          <QuickLink to="/dashboard/coverage" icon={Gauge}     label="Couverture MITRE"      sub="par tactique"       tint="#a855f7" />
+        </div>
+      </FadeIn>
     </>
   );
 }
