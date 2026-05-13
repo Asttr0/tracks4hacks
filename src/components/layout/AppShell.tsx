@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { TopBar } from "./TopBar";
 import { Sidebar, LARGEUR_REDUITE, LARGEUR_OUVERTE } from "./Sidebar";
 import { CommandPalette } from "../common/CommandPalette";
@@ -9,6 +10,7 @@ import { useStream } from "../../hooks/useStream";
 export default function AppShell() {
   useStream();
 
+  const location = useLocation();
   const sidebarOpen = useUiStore((s) => s.sidebarOpen);
   const margeGauche = sidebarOpen ? LARGEUR_OUVERTE : LARGEUR_REDUITE;
   const openPalette = useUiStore((s) => s.openPalette);
@@ -44,7 +46,17 @@ export default function AppShell() {
         <TopBar />
         <main className="min-w-0">
           <div className="mx-auto max-w-[1600px] px-4 py-6 lg:px-8">
-            <Outlet />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>
