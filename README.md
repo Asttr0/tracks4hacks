@@ -6,7 +6,7 @@
 
 > *Tracking every hacker's footprints — from the attacker's terminal to the defender's dashboard.*
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/tracks4hacks/deploy-status)](https://tracks4hacks.netlify.app)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/d73447cb-fe9b-4ba9-ba69-3a4ada87dacb/deploy-status)](https://tracks4hacks.netlify.app)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178c6?logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)
