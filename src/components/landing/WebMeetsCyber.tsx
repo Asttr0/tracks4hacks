@@ -25,13 +25,11 @@ export const WebMeetsCyber = () => (
           viewport={viewport}
           className="max-w-3xl text-slate-600 dark:text-gray-400 text-base md:text-lg leading-relaxed"
         >
-          Pour notre projet de technologie web, mon binôme et moi avons choisi d'allier développement
-          web et cybersécurité. En tant qu'élèves ingénieurs, nous avons fait un constat simple lors des
-          simulations d'attaques : il est très difficile de synchroniser en direct ce que font les
-          attaquants et ce que voient les défenseurs. C'est de là qu'est né{" "}
-          <span className="font-cinematic text-red-600 dark:text-red-500">Tracks4Hacks</span>.{" "}
-          Notre objectif est d'offrir une interface web claire et performante qui centralise ces
-          informations, pour comprendre une cyberattaque en un seul coup d'œil.
+          Les attaques réseau génèrent des dizaines d'alertes en quelques secondes — sans outil adapté,
+          il est impossible de s'y retrouver. Avec{" "}
+          <span className="font-cinematic text-red-600 dark:text-red-500">Tracks4Hacks</span>,
+          nous avons voulu construire le tableau de bord qui nous aurait manqué pendant nos simulations :
+          une vue unifiée, en temps réel, qui traduit chaque action offensive en signal défensif lisible.
         </motion.p>
       </div>
 
