@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="./public/logo.svg" alt="Tracks4Hacks" width="520"/>
+  <img src="./public/logo.svg" alt="Tracks4Hacks" width="700"/>
 </div>
 
 <br/>
 
 > *Tracking every hacker's footprints — from the attacker's terminal to the defender's dashboard.*
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/luxury-melomakarona-a2c664/deploy-status)](https://tracks4hacks.netlify.app)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/tracks4hacks/deploy-status)](https://tracks4hacks.netlify.app)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178c6?logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)

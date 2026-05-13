@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 90" width="620" height="90">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 95" width="820" height="95">
   <defs>
     <style>
       @font-face {
@@ -8,20 +8,17 @@
         font-style: normal;
       }
     </style>
-    <filter id="redGlow" x="-10%" y="-30%" width="120%" height="160%">
-      <feGaussianBlur stdDeviation="3" result="b"/>
+    <filter id="redGlow" x="-5%" y="-40%" width="110%" height="180%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <!-- TRACKS4HACKS — transparent background, Cinzel 900 -->
   <text
-    y="72"
+    x="10" y="74"
     font-family="'Cinzel', serif"
     font-weight="900"
     font-size="72"
-    letter-spacing="4"
-  >
-    <tspan fill="#ef4444" filter="url(#redGlow)">TRACKS</tspan><tspan fill="#ffffff">4</tspan><tspan fill="#ef4444" filter="url(#redGlow)">HACKS</tspan>
-  </text>
+    letter-spacing="3"
+  ><tspan fill="#ef4444" filter="url(#redGlow)">TRACKS</tspan><tspan fill="#ffffff">4</tspan><tspan fill="#ef4444" filter="url(#redGlow)">HACKS</tspan></text>
 </svg>
