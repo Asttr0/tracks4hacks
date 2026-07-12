@@ -9,7 +9,7 @@
 ![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-3-06b6d4?logo=tailwindcss&logoColor=white)
 
-A real-time SOC dashboard that correlates Red Team offensive operations (Kali Linux) with Blue Team SIEM telemetry (Wazuh + Suricata) on a Debian 12 VM hosted on Microsoft Azure. Built as a final project for the **ENSA Berrechid 2025-2026 *Technologies Web*** module .
+A real-time SOC dashboard that correlates Red Team offensive operations (Kali Linux) with Blue Team SIEM telemetry (Wazuh + Suricata) on a Debian 12 VM hosted on Microsoft Azure. Built as a final project for the **ENSA Berrechid 2025-2026 
 
 **Live demo →** [tracks4hacks.netlify.app](https://tracks4hacks.netlify.app)
 
